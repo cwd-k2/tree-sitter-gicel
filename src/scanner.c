@@ -131,8 +131,10 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
       lexer->result_symbol = TOKEN_NEWLINE;
       return true;
     }
-    /* Not a declaration boundary — fall through. */
-    return false;
+    /* Not a declaration boundary — fall through to block comment check.
+       After consuming whitespace, the lookahead might be '{' for {- ... -}.
+       Returning false here would let the regular lexer consume '{' as a
+       brace token, missing the block comment. */
   }
 
   /* ── Block comment {- … -} ─────────────────────────────────────── */
