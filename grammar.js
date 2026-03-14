@@ -212,7 +212,7 @@ module.exports = grammar({
 
     kind_arrow: ($) => prec.right(1, seq($._kind_atom, "->", $._kind)),
 
-    _kind_atom: ($) => choice($.constructor, seq("(", $._kind, ")")),
+    _kind_atom: ($) => choice($.constructor, $.identifier, seq("(", $._kind, ")")),
 
     // ════════════════════════════════════════════════════════════════════
     //  Type expressions

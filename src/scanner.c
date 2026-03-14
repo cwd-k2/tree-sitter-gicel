@@ -123,7 +123,11 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
     }
     lexer->mark_end(lexer);
 
-    if (is_decl_start_char(lexer->lookahead)) {
+    /* Only emit _newline when the next token is at column 0 (unindented).
+       Indented continuations (column > 0) are NOT declaration boundaries.
+       This mirrors the GICEL parser's atDeclBoundary() semantics. */
+    if (is_decl_start_char(lexer->lookahead) &&
+        lexer->get_column(lexer) == 0) {
       lexer->result_symbol = TOKEN_NEWLINE;
       return true;
     }
