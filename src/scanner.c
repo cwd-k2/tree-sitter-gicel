@@ -2,63 +2,52 @@
  * External scanner for GICEL's tree-sitter grammar.
  *
  * Responsibilities:
- *   1. Track brace depth via _open_brace / _close_brace tokens.
- *   2. Emit _newline at top-level declaration boundaries (depth 0).
- *   3. Parse nestable block comments {- … -}.
+ *   1. Emit _newline at top-level declaration boundaries.
+ *   2. Parse nestable block comments {- … -}.
  *
- * _newline is emitted only when:
- *   - brace depth is 0
+ * _newline is emitted when:
+ *   - valid_symbols[TOKEN_NEWLINE] is true (only at source_file level)
  *   - the scanner encounters a newline
  *   - the next non-whitespace character could start a declaration
  *     (a-z, A-Z, _, or '(')
  *
- * This mirrors the GICEL parser's atDeclBoundary() semantics.
+ * Brace depth is NOT tracked: tree-sitter's parser state ensures
+ * TOKEN_NEWLINE is only valid at the top level (source_file rule).
  */
 
 #include "tree_sitter/parser.h"
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 
 enum TokenType {
   TOKEN_NEWLINE,
   TOKEN_BLOCK_COMMENT,
-  TOKEN_OPEN_BRACE,
-  TOKEN_CLOSE_BRACE,
 };
-
-typedef struct {
-  uint16_t brace_depth;
-} Scanner;
 
 /* ── Lifecycle ────────────────────────────────────────────────────── */
 
 void *tree_sitter_gicel_external_scanner_create(void) {
-  Scanner *s = calloc(1, sizeof(Scanner));
-  return s;
+  return NULL;
 }
 
 void tree_sitter_gicel_external_scanner_destroy(void *payload) {
-  free(payload);
+  (void)payload;
 }
 
 unsigned tree_sitter_gicel_external_scanner_serialize(void *payload,
                                                       char *buffer) {
-  Scanner *s = (Scanner *)payload;
-  memcpy(buffer, &s->brace_depth, sizeof(s->brace_depth));
-  return sizeof(s->brace_depth);
+  (void)payload;
+  (void)buffer;
+  return 0;
 }
 
 void tree_sitter_gicel_external_scanner_deserialize(void *payload,
                                                     const char *buffer,
                                                     unsigned length) {
-  Scanner *s = (Scanner *)payload;
-  if (length >= sizeof(s->brace_depth)) {
-    memcpy(&s->brace_depth, buffer, sizeof(s->brace_depth));
-  } else {
-    s->brace_depth = 0;
-  }
+  (void)payload;
+  (void)buffer;
+  (void)length;
 }
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -107,13 +96,12 @@ static bool scan_block_comment_body(TSLexer *lexer) {
 
 bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
                                              const bool *valid_symbols) {
-  Scanner *s = (Scanner *)payload;
+  (void)payload;
 
   skip_horizontal_ws(lexer);
 
   /* ── Newline at top level ──────────────────────────────────────── */
-  if (lexer->lookahead == '\n' && s->brace_depth == 0 &&
-      valid_symbols[TOKEN_NEWLINE]) {
+  if (lexer->lookahead == '\n' && valid_symbols[TOKEN_NEWLINE]) {
     /* Consume leading newlines and whitespace. */
     while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
            lexer->lookahead == ' ' || lexer->lookahead == '\t') {
@@ -139,42 +127,22 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
       lexer->result_symbol = TOKEN_NEWLINE;
       return true;
     }
-    /* Not a declaration boundary — fall through so \n is consumed as extra. */
+    /* Not a declaration boundary — fall through. */
     return false;
   }
 
-  /* ── Open brace or block comment ───────────────────────────────── */
-  if (lexer->lookahead == '{') {
+  /* ── Block comment {- … -} ─────────────────────────────────────── */
+  if (lexer->lookahead == '{' && valid_symbols[TOKEN_BLOCK_COMMENT]) {
+    lexer->mark_end(lexer);
     lexer->advance(lexer, false);
-
-    /* {- starts a block comment */
-    if (lexer->lookahead == '-' && valid_symbols[TOKEN_BLOCK_COMMENT]) {
+    if (lexer->lookahead == '-') {
       lexer->advance(lexer, false);
       scan_block_comment_body(lexer);
       lexer->mark_end(lexer);
       lexer->result_symbol = TOKEN_BLOCK_COMMENT;
       return true;
     }
-
-    /* Otherwise it's an open brace. */
-    if (valid_symbols[TOKEN_OPEN_BRACE]) {
-      lexer->mark_end(lexer);
-      s->brace_depth++;
-      lexer->result_symbol = TOKEN_OPEN_BRACE;
-      return true;
-    }
-
     return false;
-  }
-
-  /* ── Close brace ───────────────────────────────────────────────── */
-  if (lexer->lookahead == '}' && valid_symbols[TOKEN_CLOSE_BRACE]) {
-    lexer->advance(lexer, false);
-    lexer->mark_end(lexer);
-    if (s->brace_depth > 0)
-      s->brace_depth--;
-    lexer->result_symbol = TOKEN_CLOSE_BRACE;
-    return true;
   }
 
   return false;

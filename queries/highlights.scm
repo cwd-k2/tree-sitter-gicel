@@ -52,6 +52,7 @@
 ; Constraint before =>: highlight the constructor as a type class
 (qualified_type (type_application constructor: (constructor) @type))
 (qualified_type (constructor) @type)
+(constraint (constructor) @type)
 
 ; ── Expressions ────────────────────────────────────────────────────
 (lambda_expression "\\" @keyword.function)
@@ -87,7 +88,7 @@
 
 ; ── Punctuation ────────────────────────────────────────────────────
 ["->" "=>" "::" ":="] @punctuation.special
-["(" ")" "[" "]"] @punctuation.bracket
+["(" ")" "[" "]" "{" "}"] @punctuation.bracket
 ["," ";" "|" "." ":" "=" "\\"] @punctuation.delimiter
 
 ; ── Operators (general fallback) ───────────────────────────────────

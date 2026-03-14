@@ -23,8 +23,6 @@ module.exports = grammar({
   externals: ($) => [
     $._newline,
     $.block_comment,
-    $._open_brace,
-    $._close_brace,
   ],
 
   extras: ($) => [/[ \t\r\n]/, $.line_comment, $.block_comment],
@@ -33,19 +31,23 @@ module.exports = grammar({
 
   supertypes: ($) => [$._declaration, $._expression, $._type, $._pattern],
 
+  inline: ($) => [$._no_brace_atom, $._scrutinee_app_or_atom],
+
   conflicts: ($) => [
-    // class/instance head: constructor could be constraint _type or name.
-    [$.class_declaration, $._type],
-    [$.instance_declaration, $._type],
-    [$.constraints],
-    // Instance head: type_arg repeat can continue or the instance is done.
+    // class/instance constraint vs class/instance name (both start with constructor).
+    [$._constraint_head, $.instance_declaration],
+    // constraint arg overlaps with type_binder and type_arg.
+    [$._constraint_arg, $._type_binder],
+    [$._constraint_arg, $._type_arg],
+    // Instance head: type_arg repeat can continue or instance is done.
     [$.instance_declaration],
     // ADT constructor fields: repeat can continue or next | / end.
     [$.adt_constructor],
-    // Instance body vs row_type: both start with { }.
+    // Instance body vs row_type: both start with {.
     [$.instance_body, $.row_type],
     // Expression atom vs pattern in do-bind / lambda / case.
     [$._atom, $._simple_pattern],
+    [$._atom, $.constructor_pattern],
     [$.unit_expression, $.unit_pattern],
   ],
 
@@ -94,9 +96,9 @@ module.exports = grammar({
 
     gadt_body: ($) =>
       seq(
-        $._open_brace,
+        "{",
         optional(seq(sep1($.gadt_constructor, ";"), optional(";"))),
-        $._close_brace,
+        "}",
       ),
 
     gadt_constructor: ($) =>
@@ -127,23 +129,40 @@ module.exports = grammar({
     class_declaration: ($) =>
       seq(
         "class",
-        optional($.constraints),
+        repeat($.constraint),
         field("name", $.constructor),
         repeat($._type_binder),
-        $._open_brace,
+        "{",
         optional(seq(sep1($.method_signature, ";"), optional(";"))),
-        $._close_brace,
+        "}",
       ),
 
-    // Constraints use plain _type before =>. Eq a is parsed as type_application.
-    constraints: ($) => repeat1(seq($._type, "=>")),
+    // Constraint: ClassName arg1 arg2 ... =>
+    // Uses _constraint_arg (no row_type) to prevent { from being consumed.
+    constraint: ($) =>
+      seq($._constraint_head, "=>"),
+
+    _constraint_head: ($) =>
+      choice(
+        seq($.constructor, repeat($._constraint_arg)),
+        seq("(", $.constructor, repeat($._constraint_arg), ")"),
+      ),
+
+    _constraint_arg: ($) =>
+      choice(
+        $.identifier,
+        $.constructor,
+        $.unit_type,
+        $.parenthesized_type,
+        $.tuple_type,
+      ),
 
     // --- instance ---
 
     instance_declaration: ($) =>
       seq(
         "instance",
-        optional($.constraints),
+        repeat($.constraint),
         field("class", $.constructor),
         repeat($._type_arg),
         optional($.instance_body),
@@ -151,9 +170,9 @@ module.exports = grammar({
 
     instance_body: ($) =>
       seq(
-        $._open_brace,
+        "{",
         optional(seq(sep1($.method_definition, ";"), optional(";"))),
-        $._close_brace,
+        "}",
       ),
 
     method_signature: ($) =>
@@ -251,14 +270,14 @@ module.exports = grammar({
 
     row_type: ($) =>
       seq(
-        $._open_brace,
+        "{",
         optional(
           choice(
             seq(sep1($.row_field, ","), optional(seq("|", $.identifier))),
             seq("|", $.identifier),
           ),
         ),
-        $._close_brace,
+        "}",
       ),
 
     row_field: ($) => seq(field("label", $.identifier), ":", $._type),
@@ -284,10 +303,47 @@ module.exports = grammar({
     case_expression: ($) =>
       seq(
         "case",
-        field("scrutinee", $._simple_expression),
-        $._open_brace,
+        field("scrutinee", $._scrutinee),
+        "{",
         optional(seq(sep1($.case_branch, ";"), optional(";"))),
-        $._close_brace,
+        "}",
+      ),
+
+    // Scrutinee: like _simple_expression but atoms cannot start with {.
+    // Mirrors GICEL parser's noBraceAtom flag.
+    _scrutinee: ($) =>
+      choice(
+        alias($._scrutinee_infix, $.infix_expression),
+        $._scrutinee_app_or_atom,
+      ),
+
+    _scrutinee_infix: ($) =>
+      prec.left(
+        1,
+        seq(
+          $._scrutinee,
+          field("operator", choice($.operator, $.backtick_operator)),
+          $._scrutinee,
+        ),
+      ),
+
+    _scrutinee_app_or_atom: ($) =>
+      choice(alias($._scrutinee_app, $.application), $._no_brace_atom),
+
+    _scrutinee_app: ($) =>
+      prec.left(10, seq($._scrutinee_app_or_atom, $._no_brace_atom)),
+
+    _no_brace_atom: ($) =>
+      choice(
+        $.identifier,
+        $.constructor,
+        $.integer,
+        $.string,
+        $.rune,
+        $.unit_expression,
+        $.parenthesized_expression,
+        $.tuple_expression,
+        $.list_expression,
       ),
 
     case_branch: ($) =>
@@ -296,9 +352,9 @@ module.exports = grammar({
     do_expression: ($) =>
       seq(
         "do",
-        $._open_brace,
+        "{",
         optional(seq(sep1($._do_statement, ";"), optional(";"))),
-        $._close_brace,
+        "}",
       ),
 
     _do_statement: ($) =>
@@ -364,26 +420,26 @@ module.exports = grammar({
       seq("[", optional(sep1($._expression, ",")), "]"),
 
     record_expression: ($) =>
-      seq($._open_brace, sep1($.field_value, ","), $._close_brace),
+      prec(-1, seq("{", sep1($.field_value, ","), "}")),
 
     record_update_expression: ($) =>
-      seq(
-        $._open_brace,
+      prec(-1, seq(
+        "{",
         field("base", $._expression),
         "|",
         sep1($.field_value, ","),
-        $._close_brace,
-      ),
+        "}",
+      )),
 
     field_value: ($) =>
       seq(field("label", $.identifier), "=", field("value", $._expression)),
 
     block_expression: ($) =>
-      seq(
-        $._open_brace,
+      prec(-1, seq(
+        "{",
         sep1(choice($.let_statement, $._expression), ";"),
-        $._close_brace,
-      ),
+        "}",
+      )),
 
     projection_expression: ($) =>
       prec.left(20, seq($._atom, "!#", field("field", $.identifier))),
@@ -398,7 +454,7 @@ module.exports = grammar({
     _pattern: ($) => choice($.constructor_pattern, $._simple_pattern),
 
     constructor_pattern: ($) =>
-      prec(1, seq($.constructor, repeat1($._simple_pattern))),
+      seq($.constructor, repeat1($._simple_pattern)),
 
     _simple_pattern: ($) =>
       choice(
@@ -423,10 +479,10 @@ module.exports = grammar({
 
     record_pattern: ($) =>
       seq(
-        $._open_brace,
+        "{",
         sep1($.field_pattern, ","),
         optional(seq("|", $.wildcard)),
-        $._close_brace,
+        "}",
       ),
 
     field_pattern: ($) =>
