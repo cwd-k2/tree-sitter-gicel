@@ -1,0 +1,31 @@
+{
+  "grammars": [
+    {
+      "name": "gicel",
+      "camelcase": "Gicel",
+      "scope": "source.gicel",
+      "path": ".",
+      "file-types": [
+        "gicel"
+      ],
+      "highlights": "queries/highlights.scm",
+      "injection-regex": "gicel"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for GICEL (Go's Indexed Capability Effect Language)",
+    "links": {
+      "repository": "https://github.com/cwd-k2/tree-sitter-gicel.git"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}
