@@ -17,7 +17,7 @@
     "license": "MIT",
     "description": "Tree-sitter grammar for GICEL (Go's Indexed Capability Effect Language)",
     "links": {
-      "repository": "https://github.com/cwd-k2/tree-sitter-gicel.git"
+      "repository": "https://github.com/cwd-k2/tree-sitter-gicel"
     }
   },
   "bindings": {
