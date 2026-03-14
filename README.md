@@ -1,7 +1,7 @@
 # tree-sitter-gicel
 
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
-[GICEL](https://github.com/cwd-k2/gomputation) (Go's Indexed Capability
+[GICEL](https://github.com/cwd-k2/gicel) (Go's Indexed Capability
 Effect Language) — a Haskell-like embedded typed effect language for Go.
 
 ## Features
@@ -189,7 +189,7 @@ expression  = lambda | case | do | infix | application | atom
 pattern     = constructor_pattern | simple_pattern
 ```
 
-See the [grammar reference](https://github.com/cwd-k2/gomputation/blob/main/docs/grammar-reference.md)
+See the [grammar reference](https://github.com/cwd-k2/gicel/blob/main/docs/grammar-reference.md)
 for the full language specification.
 
 ## License
