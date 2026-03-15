@@ -1,0 +1,432 @@
+===============
+Lambda simple
+===============
+
+f := \x -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (identifier)
+      body: (identifier))))
+
+===============
+Lambda curried
+===============
+
+f := \x -> \y -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (identifier)
+      body: (lambda_expression
+        pattern: (identifier)
+        body: (identifier)))))
+
+===============
+Lambda with wildcard
+===============
+
+f := \_ -> 1
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (wildcard)
+      body: (integer))))
+
+===============
+Lambda with constructor pattern
+===============
+
+f := \(Just x) -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (parenthesized_pattern
+        (constructor_pattern
+          (constructor)
+          (identifier)))
+      body: (identifier))))
+
+===============
+Lambda with tuple pattern
+===============
+
+f := \(a, b) -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (tuple_pattern
+        (identifier)
+        (identifier))
+      body: (identifier))))
+
+===============
+Lambda with record pattern
+===============
+
+f := \{ x = a, y = b } -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (record_pattern
+        (field_pattern
+          label: (identifier)
+          value: (identifier))
+        (field_pattern
+          label: (identifier)
+          value: (identifier)))
+      body: (identifier))))
+
+===============
+Do expression with bind
+===============
+
+f := do { x <- pure 1; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (identifier)
+        value: (application
+          (identifier)
+          (integer)))
+      (application
+        (identifier)
+        (identifier)))))
+
+===============
+Do expression with let
+===============
+
+f := do { x := 1; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (let_statement
+        name: (identifier)
+        value: (integer))
+      (application
+        (identifier)
+        (identifier)))))
+
+===============
+Do expression with bind let and expression
+===============
+
+f := do { x <- pure 1; y := 2; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (identifier)
+        value: (application
+          (identifier)
+          (integer)))
+      (let_statement
+        name: (identifier)
+        value: (integer))
+      (application
+        (identifier)
+        (identifier)))))
+
+===============
+Infix operator expression
+===============
+
+f := x + y
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (infix_expression
+      (identifier)
+      operator: (operator)
+      (identifier))))
+
+===============
+Backtick operator
+===============
+
+f := x `plus` y
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (infix_expression
+      (identifier)
+      operator: (backtick_operator
+        (identifier))
+      (identifier))))
+
+===============
+Application two arguments
+===============
+
+f := g x y
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (identifier))
+      (identifier))))
+
+===============
+Application single argument
+===============
+
+f := g x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (identifier)
+      (identifier))))
+
+===============
+Record expression
+===============
+
+f := { x = 1, y = 2 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (record_expression
+      (field_value
+        label: (identifier)
+        value: (integer))
+      (field_value
+        label: (identifier)
+        value: (integer)))))
+
+===============
+Record update expression
+===============
+
+f := { r | x = 1 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (record_update_expression
+      base: (identifier)
+      (field_value
+        label: (identifier)
+        value: (integer)))))
+
+===============
+Block expression
+===============
+
+f := { x := 1; x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (block_expression
+      (let_statement
+        name: (identifier)
+        value: (integer))
+      (identifier))))
+
+===============
+Type application expression
+===============
+
+f := x@Int
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (type_application_expression
+      (identifier)
+      (constructor))))
+
+===============
+Tuple expression
+===============
+
+f := (1, 2, 3)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (tuple_expression
+      (integer)
+      (integer)
+      (integer))))
+
+===============
+Two-element tuple
+===============
+
+f := (True, 42)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (tuple_expression
+      (constructor)
+      (integer))))
+
+===============
+List expression
+===============
+
+f := [1, 2, 3]
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (list_expression
+      (integer)
+      (integer)
+      (integer))))
+
+===============
+Empty list
+===============
+
+f := []
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (list_expression)))
+
+===============
+Unit expression
+===============
+
+f := ()
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (unit_expression)))
+
+===============
+Parenthesized expression
+===============
+
+f := (1 + 2)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (parenthesized_expression
+      (infix_expression
+        (integer)
+        operator: (operator)
+        (integer)))))
+
+===============
+Type annotation in expression
+===============
+
+f := (x :: Int)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (parenthesized_expression
+      (identifier)
+      (constructor))))
+
+===============
+Constructor application
+===============
+
+f := Just 1
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (constructor)
+      (integer))))
+
+===============
+Nullary constructor
+===============
+
+f := Nothing
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (constructor)))

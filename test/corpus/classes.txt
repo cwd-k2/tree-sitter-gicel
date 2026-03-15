@@ -1,0 +1,234 @@
+===============
+Class declaration simple
+===============
+
+class Eq a {
+  eq :: a -> a -> Bool
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (constructor))))))
+
+===============
+Class with multiple methods
+===============
+
+class Eq a {
+  eq :: a -> a -> Bool;
+  neq :: a -> a -> Bool
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (constructor))))
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (constructor))))))
+
+===============
+Class with superclass constraint
+===============
+
+class Eq a => Ord a {
+  compare :: a -> a -> Ordering
+}
+
+---
+
+(source_file
+  (class_declaration
+    (constraint
+      (constructor)
+      (identifier))
+    name: (constructor)
+    (identifier)
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (constructor))))))
+
+===============
+Class with multiple superclass constraints
+===============
+
+class Eq a => Ord a => Show a {
+  render :: a -> String
+}
+
+---
+
+(source_file
+  (class_declaration
+    (constraint
+      (constructor)
+      (identifier))
+    (constraint
+      (constructor)
+      (identifier))
+    name: (constructor)
+    (identifier)
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (constructor)))))
+
+===============
+Class with kinded parameter
+===============
+
+class Functor (f : Type -> Type) {
+  fmap :: forall a b. (a -> b) -> f a -> f b
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (kinded_variable
+      name: (identifier)
+      kind: (kind_arrow
+        (constructor)
+        (constructor)))
+    (method_signature
+      name: (identifier)
+      type: (forall_type
+        (identifier)
+        (identifier)
+        (function_type
+          (parenthesized_type
+            (function_type
+              (identifier)
+              (identifier)))
+          (function_type
+            (type_application
+              constructor: (identifier)
+              argument: (identifier))
+            (type_application
+              constructor: (identifier)
+              argument: (identifier))))))))
+
+===============
+Instance declaration simple
+===============
+
+instance Eq Bool {
+  eq := \x -> \y -> True
+}
+
+---
+
+(source_file
+  (instance_declaration
+    class: (constructor)
+    (constructor)
+    (instance_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          body: (lambda_expression
+            pattern: (identifier)
+            body: (constructor)))))))
+
+===============
+Instance with multiple methods
+===============
+
+instance Eq Bool {
+  eq := \x -> \y -> True;
+  neq := \x -> \y -> False
+}
+
+---
+
+(source_file
+  (instance_declaration
+    class: (constructor)
+    (constructor)
+    (instance_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          body: (lambda_expression
+            pattern: (identifier)
+            body: (constructor))))
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          body: (lambda_expression
+            pattern: (identifier)
+            body: (constructor)))))))
+
+===============
+Instance with constraint
+===============
+
+instance Eq a => Eq (Maybe a) {
+  eq := \x -> \y -> True
+}
+
+---
+
+(source_file
+  (instance_declaration
+    (constraint
+      (constructor)
+      (identifier))
+    class: (constructor)
+    (parenthesized_type
+      (type_application
+        constructor: (constructor)
+        argument: (identifier)))
+    (instance_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          body: (lambda_expression
+            pattern: (identifier)
+            body: (constructor)))))))
+
+===============
+Instance without body
+===============
+
+instance Eq Bool
+
+---
+
+(source_file
+  (instance_declaration
+    class: (constructor)
+    (constructor)))

@@ -1,0 +1,58 @@
+===============
+Line comment
+===============
+
+-- this is a comment
+x := 1
+
+---
+
+(source_file
+  (line_comment)
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Block comment
+===============
+
+{- block comment -}
+x := 1
+
+---
+
+(source_file
+  (block_comment)
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Nested block comment
+===============
+
+{- outer {- inner -} still outer -}
+x := 1
+
+---
+
+(source_file
+  (block_comment)
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Inline line comment
+===============
+
+x := 1 -- trailing comment
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer))
+  (line_comment))

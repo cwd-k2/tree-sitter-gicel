@@ -1,0 +1,161 @@
+===============
+Integer literal zero
+===============
+
+x := 0
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Integer literal
+===============
+
+x := 42
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Integer literal large
+===============
+
+x := 999999
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+String literal simple
+===============
+
+x := "hello"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string)))
+
+===============
+String literal empty
+===============
+
+x := ""
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string)))
+
+===============
+String with newline escape
+===============
+
+x := "hello\nworld"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string
+      (escape_sequence))))
+
+===============
+String with tab escape
+===============
+
+x := "tab\there"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string
+      (escape_sequence))))
+
+===============
+String with backslash escape
+===============
+
+x := "quote\\"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string
+      (escape_sequence))))
+
+===============
+String with null escape
+===============
+
+x := "null\0end"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (string
+      (escape_sequence))))
+
+===============
+Rune literal
+===============
+
+x := 'a'
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (rune)))
+
+===============
+Rune with newline escape
+===============
+
+x := '\n'
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (rune
+      (escape_sequence))))
+
+===============
+Rune with backslash escape
+===============
+
+x := '\\'
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (rune
+      (escape_sequence))))

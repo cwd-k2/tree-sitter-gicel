@@ -1,0 +1,234 @@
+===============
+Variable pattern
+===============
+
+f := \x -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (identifier)
+      body: (identifier))))
+
+===============
+Wildcard pattern
+===============
+
+f := \_ -> 1
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (wildcard)
+      body: (integer))))
+
+===============
+Constructor pattern nullary
+===============
+
+f := \True -> 1
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (constructor)
+      body: (integer))))
+
+===============
+Constructor pattern with argument
+===============
+
+f := \(Just x) -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (parenthesized_pattern
+        (constructor_pattern
+          (constructor)
+          (identifier)))
+      body: (identifier))))
+
+===============
+Tuple pattern two elements
+===============
+
+f := \(a, b) -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (tuple_pattern
+        (identifier)
+        (identifier))
+      body: (identifier))))
+
+===============
+Tuple pattern three elements
+===============
+
+f := \(a, b, c) -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (tuple_pattern
+        (identifier)
+        (identifier)
+        (identifier))
+      body: (identifier))))
+
+===============
+Record pattern closed
+===============
+
+f := \{ x = a, y = b } -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (record_pattern
+        (field_pattern
+          label: (identifier)
+          value: (identifier))
+        (field_pattern
+          label: (identifier)
+          value: (identifier)))
+      body: (identifier))))
+
+===============
+Record pattern open
+===============
+
+f := \{ x = a | _ } -> a
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (record_pattern
+        (field_pattern
+          label: (identifier)
+          value: (identifier))
+        (wildcard))
+      body: (identifier))))
+
+===============
+Unit pattern
+===============
+
+f := \() -> 1
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (unit_pattern)
+      body: (integer))))
+
+===============
+Integer literal pattern
+===============
+
+f := \0 -> True
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (integer)
+      body: (constructor))))
+
+===============
+String literal pattern
+===============
+
+f := \"hello" -> True
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (string)
+      body: (constructor))))
+
+===============
+Rune literal pattern
+===============
+
+f := \'a' -> True
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (rune)
+      body: (constructor))))
+
+===============
+Parenthesized pattern
+===============
+
+f := \(x) -> x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (parenthesized_pattern
+        (identifier))
+      body: (identifier))))
+
+===============
+Do bind with wildcard pattern
+===============
+
+f := do { _ <- pure 1; pure 2 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (wildcard)
+        value: (application
+          (identifier)
+          (integer)))
+      (application
+        (identifier)
+        (integer)))))

@@ -1,0 +1,258 @@
+===============
+Forall with single binder
+===============
+
+f :: forall a. a -> a
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (identifier)
+      (function_type
+        (identifier)
+        (identifier)))))
+
+===============
+Forall with multiple binders
+===============
+
+f :: forall a b. a -> b -> a
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (identifier)
+      (identifier)
+      (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (identifier))))))
+
+===============
+Forall with kinded variable
+===============
+
+f :: forall (f : Type -> Type). f a -> f b
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (kinded_variable
+        name: (identifier)
+        kind: (kind_arrow
+          (constructor)
+          (constructor)))
+      (function_type
+        (type_application
+          constructor: (identifier)
+          argument: (identifier))
+        (type_application
+          constructor: (identifier)
+          argument: (identifier))))))
+
+===============
+Qualified type with constraint
+===============
+
+f :: Eq a => a -> a -> Bool
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (qualified_type
+      (type_application
+        constructor: (constructor)
+        argument: (identifier))
+      (function_type
+        (identifier)
+        (function_type
+          (identifier)
+          (constructor))))))
+
+===============
+Function type right-associative
+===============
+
+f :: a -> b -> c
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (identifier)
+      (function_type
+        (identifier)
+        (identifier)))))
+
+===============
+Type application single
+===============
+
+f :: Maybe Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (type_application
+      constructor: (constructor)
+      argument: (constructor))))
+
+===============
+Type application nested
+===============
+
+f :: Map String Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (type_application
+      constructor: (type_application
+        constructor: (constructor)
+        argument: (constructor))
+      argument: (constructor))))
+
+===============
+Unit type
+===============
+
+f :: ()
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (unit_type)))
+
+===============
+Parenthesized type
+===============
+
+f :: (a -> b) -> a -> b
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (parenthesized_type
+        (function_type
+          (identifier)
+          (identifier)))
+      (function_type
+        (identifier)
+        (identifier)))))
+
+===============
+Tuple type
+===============
+
+f :: (Int, Bool)
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (tuple_type
+      (constructor)
+      (constructor))))
+
+===============
+Three-element tuple type
+===============
+
+f :: (Int, Bool, String)
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (tuple_type
+      (constructor)
+      (constructor)
+      (constructor))))
+
+===============
+Closed row type
+===============
+
+f :: { x : Int, y : Bool }
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type
+      (row_field
+        label: (identifier)
+        (constructor))
+      (row_field
+        label: (identifier)
+        (constructor)))))
+
+===============
+Open row type with tail
+===============
+
+f :: { x : Int | r }
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type
+      (row_field
+        label: (identifier)
+        (constructor))
+      (identifier))))
+
+===============
+Empty row type
+===============
+
+f :: {}
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type)))
+
+===============
+Row type with only tail variable
+===============
+
+f :: { | r }
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type
+      (identifier))))

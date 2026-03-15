@@ -1,0 +1,328 @@
+===============
+Import simple module
+===============
+
+import Std.Num
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor)
+      (constructor))))
+
+===============
+Import nested module
+===============
+
+import Std.Str
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor)
+      (constructor))))
+
+===============
+Multiple imports
+===============
+
+import Std.Num
+import Std.Str
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor)
+      (constructor)))
+  (import_declaration
+    (module_name
+      (constructor)
+      (constructor))))
+
+===============
+Simple ADT enumeration
+===============
+
+data Bool = True | False
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (adt_constructors
+      (adt_constructor
+        name: (constructor))
+      (adt_constructor
+        name: (constructor)))))
+
+===============
+ADT with type parameter
+===============
+
+data Maybe a = Just a | Nothing
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (identifier)
+    (adt_constructors
+      (adt_constructor
+        name: (constructor)
+        (identifier))
+      (adt_constructor
+        name: (constructor)))))
+
+===============
+ADT with multiple parameters
+===============
+
+data Result e a = Ok a | Err e
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (identifier)
+    (identifier)
+    (adt_constructors
+      (adt_constructor
+        name: (constructor)
+        (identifier))
+      (adt_constructor
+        name: (constructor)
+        (identifier)))))
+
+===============
+ADT with recursive type
+===============
+
+data List a = Cons a (List a) | Nil
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (identifier)
+    (adt_constructors
+      (adt_constructor
+        name: (constructor)
+        (identifier)
+        (parenthesized_type
+          (type_application
+            constructor: (constructor)
+            argument: (identifier))))
+      (adt_constructor
+        name: (constructor)))))
+
+===============
+ADT with kinded parameter
+===============
+
+data Dict (c : Constraint) = MkDict
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (kinded_variable
+      name: (identifier)
+      kind: (constructor))
+    (adt_constructors
+      (adt_constructor
+        name: (constructor)))))
+
+===============
+GADT declaration
+===============
+
+data Expr a = {
+  LitInt :: Int -> Expr Int;
+  LitBool :: Bool -> Expr Bool
+}
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    (identifier)
+    (gadt_body
+      (gadt_constructor
+        name: (constructor)
+        type: (function_type
+          (constructor)
+          (type_application
+            constructor: (constructor)
+            argument: (constructor))))
+      (gadt_constructor
+        name: (constructor)
+        type: (function_type
+          (constructor)
+          (type_application
+            constructor: (constructor)
+            argument: (constructor)))))))
+
+===============
+Type alias
+===============
+
+type Effect r a = Computation r r a
+
+---
+
+(source_file
+  (type_alias_declaration
+    name: (constructor)
+    (identifier)
+    (identifier)
+    type: (type_application
+      constructor: (type_application
+        constructor: (type_application
+          constructor: (constructor)
+          argument: (identifier))
+        argument: (identifier))
+      argument: (identifier))))
+
+===============
+Fixity left-associative operator
+===============
+
+infixl 6 +
+
+---
+
+(source_file
+  (fixity_declaration
+    precedence: (integer)
+    operator: (operator)))
+
+===============
+Fixity right-associative operator
+===============
+
+infixr 5 <>
+
+---
+
+(source_file
+  (fixity_declaration
+    precedence: (integer)
+    operator: (operator)))
+
+===============
+Fixity with identifier
+===============
+
+infixl 6 plus
+
+---
+
+(source_file
+  (fixity_declaration
+    precedence: (integer)
+    operator: (identifier)))
+
+===============
+Type annotation simple
+===============
+
+f :: Int -> Bool
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (constructor)
+      (constructor))))
+
+===============
+Value definition simple
+===============
+
+x := 42
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Operator type annotation
+===============
+
+(+) :: Int -> Int -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (parenthesized_operator
+      (operator))
+    type: (function_type
+      (constructor)
+      (function_type
+        (constructor)
+        (constructor)))))
+
+===============
+Operator value definition
+===============
+
+(+) := add
+
+---
+
+(source_file
+  (value_definition
+    name: (parenthesized_operator
+      (operator))
+    value: (identifier)))
+
+===============
+Semicolon-separated declarations
+===============
+
+x := 1; y := 2
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer))
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Newline-separated declarations
+===============
+
+x := 1
+y := 2
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer))
+  (value_definition
+    name: (identifier)
+    value: (integer)))
