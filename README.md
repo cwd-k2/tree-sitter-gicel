@@ -28,107 +28,13 @@ npx tree-sitter generate
 npx tree-sitter parse path/to/file.gicel
 ```
 
-## Editor Integration
+## Editor Plugins
 
-### Neovim (nvim-treesitter)
-
-**1. Register the parser** in your `init.lua`:
-
-```lua
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-
-parser_config.gicel = {
-  install_info = {
-    url = "https://github.com/cwd-k2/tree-sitter-gicel",
-    files = { "src/parser.c", "src/scanner.c" },
-    branch = "main",
-  },
-  filetype = "gicel",
-}
-```
-
-For local development, replace the `url` with an absolute path:
-
-```lua
-    url = "/path/to/tree-sitter-gicel",
-```
-
-**2. Register the filetype:**
-
-```lua
-vim.filetype.add({
-  extension = {
-    gicel = "gicel",
-  },
-})
-```
-
-**3. Install the parser:**
-
-```vim
-:TSInstall gicel
-```
-
-**4. Place the highlight queries:**
-
-```sh
-mkdir -p ~/.config/nvim/queries/gicel
-ln -s /path/to/tree-sitter-gicel/queries/highlights.scm \
-      ~/.config/nvim/queries/gicel/highlights.scm
-```
-
-**5. Verify:**
-
-```vim
-:e some_file.gicel
-:InspectTree
-```
-
-### Zed
-
-Zed loads tree-sitter grammars as extensions.
-
-**1. Create the extension structure** in this repository:
-
-```
-tree-sitter-gicel/
-  extension.toml
-  languages/
-    gicel/
-      config.toml
-      highlights.scm    # copy of queries/highlights.scm
-```
-
-**2. `extension.toml`** (repository root):
-
-```toml
-[extension]
-id = "gicel"
-name = "GICEL"
-version = "0.1.0"
-schema_version = 1
-
-[language_servers]
-```
-
-**3. `languages/gicel/config.toml`:**
-
-```toml
-name = "GICEL"
-grammar = "gicel"
-path_suffixes = ["gicel"]
-line_comments = ["-- "]
-block_comment = ["{-", "-}"]
-brackets = [
-  { start = "(", end = ")", close = true, newline = true },
-  { start = "{", end = "}", close = true, newline = true },
-  { start = "[", end = "]", close = true, newline = true },
-]
-```
-
-**4. Install as dev extension:**
-
-Zed > Extensions > Install Dev Extension > select this directory.
+| Editor | Plugin | Install |
+| ------ | ------ | ------- |
+| **Neovim** | [nvim-gicel](https://github.com/cwd-k2/nvim-gicel) | `{ "cwd-k2/nvim-gicel", dependencies = { "nvim-treesitter/nvim-treesitter" } }` then `:TSInstall gicel` |
+| **Zed** | [zed-gicel](https://github.com/cwd-k2/zed-gicel) | Extensions > Install Dev Extension (or publish to registry) |
+| **VS Code** | [vscode-gicel](https://github.com/cwd-k2/vscode-gicel) | TextMate grammar (no tree-sitter) |
 
 ### Helix
 
