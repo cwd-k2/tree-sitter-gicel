@@ -1277,9 +1277,34 @@
         },
         {
           "type": "SYMBOL",
+          "name": "type_annotated_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "_simple_expression"
         }
       ]
+    },
+    "type_annotated_expression": {
+      "type": "PREC_RIGHT",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_simple_expression"
+          },
+          {
+            "type": "STRING",
+            "value": "::"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_type"
+          }
+        ]
+      }
     },
     "lambda_expression": {
       "type": "PREC_RIGHT",
@@ -1436,7 +1461,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "_scrutinee"
+            "name": "_expression"
           }
         ]
       }
@@ -1726,7 +1751,7 @@
           },
           {
             "type": "SYMBOL",
-            "name": "_simple_expression"
+            "name": "_expression"
           }
         ]
       }

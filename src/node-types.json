@@ -110,6 +110,10 @@
         "named": true
       },
       {
+        "type": "type_annotated_expression",
+        "named": true
+      },
+      {
         "type": "type_application_expression",
         "named": true
       },
@@ -906,67 +910,7 @@
       "required": true,
       "types": [
         {
-          "type": "application",
-          "named": true
-        },
-        {
-          "type": "block_expression",
-          "named": true
-        },
-        {
-          "type": "constructor",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "infix_expression",
-          "named": true
-        },
-        {
-          "type": "integer",
-          "named": true
-        },
-        {
-          "type": "list_expression",
-          "named": true
-        },
-        {
-          "type": "parenthesized_expression",
-          "named": true
-        },
-        {
-          "type": "projection_expression",
-          "named": true
-        },
-        {
-          "type": "record_expression",
-          "named": true
-        },
-        {
-          "type": "record_update_expression",
-          "named": true
-        },
-        {
-          "type": "rune",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "tuple_expression",
-          "named": true
-        },
-        {
-          "type": "type_application_expression",
-          "named": true
-        },
-        {
-          "type": "unit_expression",
+          "type": "_expression",
           "named": true
         }
       ]
@@ -1636,6 +1580,77 @@
         },
         {
           "type": "kinded_variable",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_annotated_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_type",
+          "named": true
+        },
+        {
+          "type": "application",
+          "named": true
+        },
+        {
+          "type": "block_expression",
+          "named": true
+        },
+        {
+          "type": "infix_expression",
+          "named": true
+        },
+        {
+          "type": "integer",
+          "named": true
+        },
+        {
+          "type": "list_expression",
+          "named": true
+        },
+        {
+          "type": "parenthesized_expression",
+          "named": true
+        },
+        {
+          "type": "projection_expression",
+          "named": true
+        },
+        {
+          "type": "record_expression",
+          "named": true
+        },
+        {
+          "type": "record_update_expression",
+          "named": true
+        },
+        {
+          "type": "rune",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "tuple_expression",
+          "named": true
+        },
+        {
+          "type": "type_application_expression",
+          "named": true
+        },
+        {
+          "type": "unit_expression",
           "named": true
         }
       ]

@@ -66,6 +66,8 @@
 (bind_statement "<-" @keyword.operator)
 (let_statement ":=" @keyword.operator)
 
+(type_annotated_expression "::" @punctuation.special)
+
 (field_value label: (identifier) @property)
 (projection_expression "!#" @operator)
 (projection_expression field: (identifier) @property)

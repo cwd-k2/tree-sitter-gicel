@@ -430,3 +430,93 @@ f := Nothing
   (value_definition
     name: (identifier)
     value: (constructor)))
+
+===============
+Case expression simple
+===============
+
+f := case x { True -> 1; False -> 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (constructor)
+        body: (integer))
+      (case_branch
+        pattern: (constructor)
+        body: (integer)))))
+
+===============
+Case expression with application scrutinee
+===============
+
+f := case g x { Just y -> y; Nothing -> 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (application
+        (identifier)
+        (identifier))
+      (case_branch
+        pattern: (constructor_pattern
+          (constructor)
+          (identifier))
+        body: (identifier))
+      (case_branch
+        pattern: (constructor)
+        body: (integer)))))
+
+===============
+Case expression empty body
+===============
+
+f := case x {}
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier))))
+
+===============
+Projection expression
+===============
+
+f := r!#x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (projection_expression
+      (identifier)
+      field: (identifier))))
+
+===============
+Chained projection
+===============
+
+f := r!#x!#y
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (projection_expression
+      (projection_expression
+        (identifier)
+        field: (identifier))
+      field: (identifier))))

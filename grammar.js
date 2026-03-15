@@ -305,8 +305,14 @@ module.exports = grammar({
         $.lambda_expression,
         $.case_expression,
         $.do_expression,
+        $.type_annotated_expression,
         $._simple_expression,
       ),
+
+    // Bare expression-level type annotation: `expr :: Type`
+    // Lowest precedence among expressions (below infix).
+    type_annotated_expression: ($) =>
+      prec.right(-1, seq($._simple_expression, "::", $._type)),
 
     lambda_expression: ($) =>
       prec.right(
@@ -343,7 +349,7 @@ module.exports = grammar({
         seq(
           $._scrutinee,
           field("operator", choice($.operator, $.backtick_operator)),
-          $._scrutinee,
+          $._expression,
         ),
       ),
 
@@ -405,7 +411,7 @@ module.exports = grammar({
         seq(
           $._simple_expression,
           field("operator", choice($.operator, $.backtick_operator)),
-          $._simple_expression,
+          $._expression,
         ),
       ),
 

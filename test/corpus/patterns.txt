@@ -232,3 +232,46 @@ f := do { _ <- pure 1; pure 2 }
       (application
         (identifier)
         (integer)))))
+
+===============
+Do bind with tuple pattern
+===============
+
+f := do { (a, b) <- g; pure a }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (tuple_pattern
+          (identifier)
+          (identifier))
+        value: (identifier))
+      (application
+        (identifier)
+        (identifier)))))
+
+===============
+Do bind with constructor pattern
+===============
+
+f := do { (Just x) <- g; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (parenthesized_pattern
+          (constructor_pattern
+            (constructor)
+            (identifier)))
+        value: (identifier))
+      (application
+        (identifier)
+        (identifier)))))
