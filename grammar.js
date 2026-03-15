@@ -10,6 +10,8 @@
  *   - Constraints before => are plain _type (no separate constraint grammar).
  *   - Precedence resolves ambiguity: application(10) > function(2) > qualified(1).
  *   - External scanner handles brace depth, _newline, and block comments.
+ *   - _case_brace: external token for `{` in case_expression, avoiding
+ *     LALR shift-reduce conflict between case body and block_expression.
  */
 
 /** sep1(rule, sep) — one or more rule separated by sep */
@@ -24,9 +26,15 @@ module.exports = grammar({
   // (declaration boundary). At column > 0, the scanner returns false
   // and the \n in extras handles the newline silently. This mirrors
   // GICEL's atDeclBoundary() semantics.
+  //
+  // _case_brace is emitted by the external scanner when `{` appears
+  // and the parser expects it (case_expression body). This prevents
+  // LALR state merging that would otherwise conflate the case body
+  // `{` with the block_expression/record_expression `{`.
   externals: ($) => [
     $._newline,
     $.block_comment,
+    $._case_brace,
   ],
 
   extras: ($) => [/[ \t\r\n]/, $.line_comment, $.block_comment],
@@ -247,7 +255,7 @@ module.exports = grammar({
     // Constraint is just _type before =>. Eq a parses as type_application(Eq, a).
     qualified_type: ($) => prec.right(1, seq($._type, "=>", $._type)),
 
-    // Left-recursive type application: Maybe Int → type_application(Maybe, Int)
+    // Left-recursive type application: Maybe Int -> type_application(Maybe, Int)
     type_application: ($) =>
       prec.left(10, seq(
         field("constructor", $._type),
@@ -306,11 +314,15 @@ module.exports = grammar({
         seq("\\", field("pattern", $._pattern), "->", field("body", $._expression)),
       ),
 
+    // case_expression uses _case_brace (external token) instead of "{".
+    // This avoids the LALR shift-reduce conflict where application's
+    // prec.left(10) would consume `{` as a block_expression atom,
+    // preventing the scrutinee from reducing.
     case_expression: ($) =>
       seq(
         "case",
         field("scrutinee", $._scrutinee),
-        "{",
+        $._case_brace,
         optional(seq(sep1($.case_branch, ";"), optional(";"))),
         "}",
       ),
@@ -511,7 +523,28 @@ module.exports = grammar({
     constructor: (_) => /[A-Z][a-zA-Z0-9_']*/,
     // `:` and `.` are handled specially by the lexer (type annotations,
     // forall body separator, etc.) and must not appear in operator tokens.
-    operator: (_) => /[!#$%&*+\-/<=>?^~|]+/,
+    // `->` and `<-` are reserved and excluded from the operator regex
+    // so they are always lexed as keyword tokens, never as operators.
+    // The regex handles three cases:
+    //   - 3+ operator chars (cannot be just -> or <-)
+    //   - 2 operator chars that are NOT -> or <-
+    //   - 1 operator char
+    operator: (_) => {
+      const op = /[!#$%&*+\-/<=>?^~|]/;
+      return token(choice(
+        // 3 or more operator characters — always valid
+        seq(op, op, op, repeat(op)),
+        // 2 operator characters, excluding -> and <-:
+        //   first is NOT - and NOT <: anything goes for second
+        seq(/[!#$%&*+/=>?^~|]/, op),
+        //   first IS -, second is NOT >
+        seq("-", /[!#$%&*+\-/<=?^~|]/),
+        //   first IS <, second is NOT -
+        seq("<", /[!#$%&*+/<=>?^~|]/),
+        // single operator character
+        op,
+      ));
+    },
     integer: (_) => /[0-9]+/,
     wildcard: (_) => "_",
 

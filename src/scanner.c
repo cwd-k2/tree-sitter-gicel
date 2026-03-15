@@ -3,13 +3,20 @@
  *
  * Responsibilities:
  *   1. Emit _newline at top-level declaration boundaries.
- *   2. Parse nestable block comments {- … -}.
+ *   2. Parse nestable block comments {- ... -}.
+ *   3. Emit _case_brace when `{` appears in a case_expression context.
  *
  * _newline is emitted when:
  *   - valid_symbols[TOKEN_NEWLINE] is true (only at source_file level)
  *   - the scanner encounters a newline
  *   - the next non-whitespace character could start a declaration
  *     (a-z, A-Z, _, or '(')
+ *
+ * _case_brace is emitted when:
+ *   - valid_symbols[TOKEN_CASE_BRACE] is true (after case scrutinee)
+ *   - the scanner sees `{`
+ *   This prevents the LALR shift-reduce conflict between case body `{`
+ *   and block_expression `{`.
  *
  * Brace depth is NOT tracked: tree-sitter's parser state ensures
  * TOKEN_NEWLINE is only valid at the top level (source_file rule).
@@ -23,9 +30,10 @@
 enum TokenType {
   TOKEN_NEWLINE,
   TOKEN_BLOCK_COMMENT,
+  TOKEN_CASE_BRACE,
 };
 
-/* ── Lifecycle ────────────────────────────────────────────────────── */
+/* -- Lifecycle ------------------------------------------------------------ */
 
 void *tree_sitter_gicel_external_scanner_create(void) {
   return NULL;
@@ -50,7 +58,7 @@ void tree_sitter_gicel_external_scanner_deserialize(void *payload,
   (void)length;
 }
 
-/* ── Helpers ──────────────────────────────────────────────────────── */
+/* -- Helpers -------------------------------------------------------------- */
 
 static inline bool is_decl_start_char(int32_t c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' ||
@@ -92,7 +100,7 @@ static bool scan_block_comment_body(TSLexer *lexer) {
   return true;
 }
 
-/* ── Main scan ────────────────────────────────────────────────────── */
+/* -- Main scan ------------------------------------------------------------ */
 
 bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
                                              const bool *valid_symbols) {
@@ -100,7 +108,7 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
 
   skip_horizontal_ws(lexer);
 
-  /* ── Newline at top level ──────────────────────────────────────── */
+  /* -- Newline at top level ----------------------------------------------- */
   if (lexer->lookahead == '\n' && valid_symbols[TOKEN_NEWLINE]) {
     /* Consume leading newlines and whitespace. */
     while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
@@ -111,12 +119,12 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
        mark_end is set HERE (before any comments) so the _newline token
        does NOT include comment text.  Characters advanced past mark_end
        are re-available to the parser, which creates line_comment nodes
-       via the extras mechanism — preserving highlight queries. */
+       via the extras mechanism -- preserving highlight queries. */
     lexer->mark_end(lexer);
     while (lexer->lookahead == '-') {
       lexer->advance(lexer, false);
       if (lexer->lookahead != '-') break;
-      /* It's a line comment — advance past it to peek at what follows. */
+      /* It's a line comment -- advance past it to peek at what follows. */
       while (lexer->lookahead != '\n' && lexer->lookahead != 0) {
         lexer->advance(lexer, false);
       }
@@ -136,23 +144,39 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
       lexer->result_symbol = TOKEN_NEWLINE;
       return true;
     }
-    /* Not a declaration boundary — fall through to block comment check.
-       After consuming whitespace, the lookahead might be '{' for {- ... -}.
-       Returning false here would let the regular lexer consume '{' as a
-       brace token, missing the block comment. */
+    /* Not a declaration boundary -- fall through to subsequent checks.
+       After consuming whitespace, the lookahead might be '{' for {- ... -}
+       or for a case brace.  Returning false here would let the regular
+       lexer consume '{', missing the block comment or case brace. */
   }
 
-  /* ── Block comment {- … -} ─────────────────────────────────────── */
-  if (lexer->lookahead == '{' && valid_symbols[TOKEN_BLOCK_COMMENT]) {
+  /* -- Brace handling: case_brace and block comments ---------------------- */
+  if (lexer->lookahead == '{') {
     lexer->mark_end(lexer);
     lexer->advance(lexer, false);
-    if (lexer->lookahead == '-') {
+
+    if (lexer->lookahead == '-' && valid_symbols[TOKEN_BLOCK_COMMENT]) {
+      /* Block comment {- ... -} */
       lexer->advance(lexer, false);
       scan_block_comment_body(lexer);
       lexer->mark_end(lexer);
       lexer->result_symbol = TOKEN_BLOCK_COMMENT;
       return true;
     }
+
+    if (valid_symbols[TOKEN_CASE_BRACE]) {
+      /* Case body brace: `{` after case scrutinee.
+         The parser only sets TOKEN_CASE_BRACE as valid when it is in
+         the case_expression rule after the scrutinee.  Emit the
+         special token so the parser enters the case body state
+         rather than the block_expression state. */
+      lexer->mark_end(lexer);
+      lexer->result_symbol = TOKEN_CASE_BRACE;
+      return true;
+    }
+
+    /* Not a block comment and not a case brace -- return false.
+       The regular lexer will re-scan from mark_end (before the `{`). */
     return false;
   }
 
