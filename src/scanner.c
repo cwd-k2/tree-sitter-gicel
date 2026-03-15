@@ -107,24 +107,25 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
            lexer->lookahead == ' ' || lexer->lookahead == '\t') {
       lexer->advance(lexer, true);
     }
-    /* Skip line comments that precede the next declaration.
-       mark_end before entering the loop: if the first '-' is not followed
-       by another '-', the consumed character must not be part of the
-       emitted token. mark_end anchors the token boundary here. */
+    /* Peek past line comments to find the next declaration start.
+       mark_end is set HERE (before any comments) so the _newline token
+       does NOT include comment text.  Characters advanced past mark_end
+       are re-available to the parser, which creates line_comment nodes
+       via the extras mechanism — preserving highlight queries. */
     lexer->mark_end(lexer);
     while (lexer->lookahead == '-') {
       lexer->advance(lexer, false);
       if (lexer->lookahead != '-') break;
-      /* It's a line comment — consume until newline. */
+      /* It's a line comment — advance past it to peek at what follows. */
       while (lexer->lookahead != '\n' && lexer->lookahead != 0) {
         lexer->advance(lexer, false);
       }
-      /* Consume trailing whitespace after the comment. */
+      /* Advance past trailing whitespace after the comment. */
       while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
              lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, false);
       }
-      lexer->mark_end(lexer);
+      /* Do NOT call mark_end here: comments stay outside the token. */
     }
 
     /* Only emit _newline when the next token is at column 0 (unindented).
