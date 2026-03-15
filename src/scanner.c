@@ -107,21 +107,25 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
            lexer->lookahead == ' ' || lexer->lookahead == '\t') {
       lexer->advance(lexer, true);
     }
-    /* Skip line comments that precede the next declaration. */
+    /* Skip line comments that precede the next declaration.
+       mark_end before entering the loop: if the first '-' is not followed
+       by another '-', the consumed character must not be part of the
+       emitted token. mark_end anchors the token boundary here. */
+    lexer->mark_end(lexer);
     while (lexer->lookahead == '-') {
-      lexer->advance(lexer, true);
+      lexer->advance(lexer, false);
       if (lexer->lookahead != '-') break;
       /* It's a line comment — consume until newline. */
       while (lexer->lookahead != '\n' && lexer->lookahead != 0) {
-        lexer->advance(lexer, true);
+        lexer->advance(lexer, false);
       }
       /* Consume trailing whitespace after the comment. */
       while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
              lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-        lexer->advance(lexer, true);
+        lexer->advance(lexer, false);
       }
+      lexer->mark_end(lexer);
     }
-    lexer->mark_end(lexer);
 
     /* Only emit _newline when the next token is at column 0 (unindented).
        Indented continuations (column > 0) are NOT declaration boundaries.
