@@ -32,11 +32,14 @@
 (value_definition name: (parenthesized_operator (operator) @function))
 
 (method_signature name: (identifier) @function.method)
+(method_signature name: (parenthesized_operator (operator) @function.method))
 (method_definition name: (identifier) @function.method)
+(method_definition name: (parenthesized_operator (operator) @function.method))
 
 (adt_constructor name: (constructor) @constructor)
 (gadt_constructor name: (constructor) @constructor)
 
+(fixity_declaration precedence: (integer) @number)
 (fixity_declaration operator: (operator) @operator)
 (fixity_declaration operator: (identifier) @function)
 

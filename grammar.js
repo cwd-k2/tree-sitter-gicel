@@ -20,6 +20,10 @@ function sep1(rule, separator) {
 module.exports = grammar({
   name: "gicel",
 
+  // _newline is emitted by the external scanner only at column 0
+  // (declaration boundary). At column > 0, the scanner returns false
+  // and the \n in extras handles the newline silently. This mirrors
+  // GICEL's atDeclBoundary() semantics.
   externals: ($) => [
     $._newline,
     $.block_comment,
@@ -45,6 +49,8 @@ module.exports = grammar({
     [$.adt_constructor],
     // Instance body vs row_type: both start with {.
     [$.instance_body, $.row_type],
+    // Class/instance body vs row_type in constraint args.
+    [$.class_declaration, $.row_type],
     // Expression atom vs pattern in do-bind / lambda / case.
     [$._atom, $._simple_pattern],
     [$._atom, $.constructor_pattern],
@@ -138,7 +144,6 @@ module.exports = grammar({
       ),
 
     // Constraint: ClassName arg1 arg2 ... =>
-    // Uses _constraint_arg (no row_type) to prevent { from being consumed.
     constraint: ($) =>
       seq($._constraint_head, "=>"),
 
@@ -155,6 +160,7 @@ module.exports = grammar({
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
+        $.row_type,
       ),
 
     // --- instance ---
@@ -176,10 +182,10 @@ module.exports = grammar({
       ),
 
     method_signature: ($) =>
-      seq(field("name", $.identifier), "::", field("type", $._type)),
+      seq(field("name", choice($.identifier, $.parenthesized_operator)), "::", field("type", $._type)),
 
     method_definition: ($) =>
-      seq(field("name", $.identifier), ":=", field("value", $._expression)),
+      seq(field("name", choice($.identifier, $.parenthesized_operator)), ":=", field("value", $._expression)),
 
     // --- type annotation / value definition ---
 
@@ -317,6 +323,8 @@ module.exports = grammar({
         $._scrutinee_app_or_atom,
       ),
 
+    // Flat precedence: see comment on infix_expression. CST consumers
+    // must re-bracket based on fixity declarations.
     _scrutinee_infix: ($) =>
       prec.left(
         1,
@@ -344,6 +352,8 @@ module.exports = grammar({
         $.parenthesized_expression,
         $.tuple_expression,
         $.list_expression,
+        $.projection_expression,
+        $.type_application_expression,
       ),
 
     case_branch: ($) =>
@@ -373,6 +383,10 @@ module.exports = grammar({
     _simple_expression: ($) =>
       choice($.infix_expression, $._application_or_atom),
 
+    // All operators share prec.left(1): GICEL uses user-defined fixity
+    // declarations (infixl/infixr/infixn) that cannot be encoded in
+    // tree-sitter's static precedence system. CST consumers must
+    // re-bracket infix chains based on fixity declarations.
     infix_expression: ($) =>
       prec.left(
         1,
@@ -437,7 +451,8 @@ module.exports = grammar({
     block_expression: ($) =>
       prec(-1, seq(
         "{",
-        sep1(choice($.let_statement, $._expression), ";"),
+        repeat(seq($.let_statement, ";")),
+        $._expression,
         "}",
       )),
 
@@ -494,7 +509,9 @@ module.exports = grammar({
 
     identifier: (_) => /[a-z][a-zA-Z0-9_']*|_[a-zA-Z0-9_']+/,
     constructor: (_) => /[A-Z][a-zA-Z0-9_']*/,
-    operator: (_) => /[!#$%&*+\-/<=>?^~|:.]+/,
+    // `:` and `.` are handled specially by the lexer (type annotations,
+    // forall body separator, etc.) and must not appear in operator tokens.
+    operator: (_) => /[!#$%&*+\-/<=>?^~|]+/,
     integer: (_) => /[0-9]+/,
     wildcard: (_) => "_",
 
