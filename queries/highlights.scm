@@ -73,6 +73,11 @@
 (projection_expression field: (identifier) @property)
 (type_application_expression "@" @operator)
 
+; ── Operator sections ─────────────────────────────────────────────
+(operator_section operator: (operator) @operator)
+(right_section operator: (operator) @operator)
+(left_section operator: (operator) @operator)
+
 ; ── Patterns ───────────────────────────────────────────────────────
 (constructor_pattern (constructor) @constructor)
 (field_pattern label: (identifier) @property)

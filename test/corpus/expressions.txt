@@ -520,3 +520,140 @@ f := r!#x!#y
         (identifier)
         field: (identifier))
       field: (identifier))))
+
+===============
+Operator section prefix
+===============
+
+f := foldr (+) 0 xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (application
+          (identifier)
+          (operator_section
+            operator: (operator)))
+        (integer))
+      (identifier))))
+
+===============
+Right operator section
+===============
+
+f := map (+ 1) xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (right_section
+          operator: (operator)
+          operand: (integer)))
+      (identifier))))
+
+===============
+Left operator section
+===============
+
+f := filter (0 <) xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (left_section
+          operand: (integer)
+          operator: (operator)))
+      (identifier))))
+
+===============
+Operator section with multi-char operator
+===============
+
+f := foldr (<>) empty xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (application
+          (identifier)
+          (operator_section
+            operator: (operator)))
+        (identifier))
+      (identifier))))
+
+===============
+Right section with application operand
+===============
+
+f := map (+ f x) xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (right_section
+          operator: (operator)
+          operand: (application
+            (identifier)
+            (identifier))))
+      (identifier))))
+
+===============
+Left section with application operand
+===============
+
+f := map (f x *) xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (left_section
+          operand: (application
+            (identifier)
+            (identifier))
+          operator: (operator)))
+      (identifier))))
+
+===============
+Parenthesized infix still works
+===============
+
+f := (1 + 2)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (parenthesized_expression
+      (infix_expression
+        (integer)
+        operator: (operator)
+        (integer)))))

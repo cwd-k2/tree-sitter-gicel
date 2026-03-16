@@ -78,7 +78,15 @@
         "named": true
       },
       {
+        "type": "left_section",
+        "named": true
+      },
+      {
         "type": "list_expression",
+        "named": true
+      },
+      {
+        "type": "operator_section",
         "named": true
       },
       {
@@ -95,6 +103,10 @@
       },
       {
         "type": "record_update_expression",
+        "named": true
+      },
+      {
+        "type": "right_section",
         "named": true
       },
       {
@@ -309,7 +321,15 @@
           "named": true
         },
         {
+          "type": "left_section",
+          "named": true
+        },
+        {
           "type": "list_expression",
+          "named": true
+        },
+        {
+          "type": "operator_section",
           "named": true
         },
         {
@@ -326,6 +346,10 @@
         },
         {
           "type": "record_update_expression",
+          "named": true
+        },
+        {
+          "type": "right_section",
           "named": true
         },
         {
@@ -466,7 +490,15 @@
             "named": true
           },
           {
+            "type": "left_section",
+            "named": true
+          },
+          {
             "type": "list_expression",
+            "named": true
+          },
+          {
+            "type": "operator_section",
             "named": true
           },
           {
@@ -475,6 +507,10 @@
           },
           {
             "type": "projection_expression",
+            "named": true
+          },
+          {
+            "type": "right_section",
             "named": true
           },
           {
@@ -1077,6 +1113,100 @@
     }
   },
   {
+    "type": "left_section",
+    "named": true,
+    "fields": {
+      "operand": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "application",
+            "named": true
+          },
+          {
+            "type": "block_expression",
+            "named": true
+          },
+          {
+            "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "integer",
+            "named": true
+          },
+          {
+            "type": "left_section",
+            "named": true
+          },
+          {
+            "type": "list_expression",
+            "named": true
+          },
+          {
+            "type": "operator_section",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "projection_expression",
+            "named": true
+          },
+          {
+            "type": "record_expression",
+            "named": true
+          },
+          {
+            "type": "record_update_expression",
+            "named": true
+          },
+          {
+            "type": "right_section",
+            "named": true
+          },
+          {
+            "type": "rune",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "tuple_expression",
+            "named": true
+          },
+          {
+            "type": "type_application_expression",
+            "named": true
+          },
+          {
+            "type": "unit_expression",
+            "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "operator",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "let_statement",
     "named": true,
     "fields": {
@@ -1193,6 +1323,22 @@
     }
   },
   {
+    "type": "operator_section",
+    "named": true,
+    "fields": {
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "operator",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "parenthesized_expression",
     "named": true,
     "fields": {},
@@ -1292,7 +1438,15 @@
           "named": true
         },
         {
+          "type": "left_section",
+          "named": true
+        },
+        {
           "type": "list_expression",
+          "named": true
+        },
+        {
+          "type": "operator_section",
           "named": true
         },
         {
@@ -1309,6 +1463,10 @@
         },
         {
           "type": "record_update_expression",
+          "named": true
+        },
+        {
+          "type": "right_section",
           "named": true
         },
         {
@@ -1407,6 +1565,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "right_section",
+    "named": true,
+    "fields": {
+      "operand": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "operator",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1614,7 +1798,15 @@
           "named": true
         },
         {
+          "type": "left_section",
+          "named": true
+        },
+        {
           "type": "list_expression",
+          "named": true
+        },
+        {
+          "type": "operator_section",
           "named": true
         },
         {
@@ -1631,6 +1823,10 @@
         },
         {
           "type": "record_update_expression",
+          "named": true
+        },
+        {
+          "type": "right_section",
           "named": true
         },
         {
@@ -1737,7 +1933,15 @@
           "named": true
         },
         {
+          "type": "left_section",
+          "named": true
+        },
+        {
           "type": "list_expression",
+          "named": true
+        },
+        {
+          "type": "operator_section",
           "named": true
         },
         {
@@ -1758,6 +1962,10 @@
         },
         {
           "type": "record_update_expression",
+          "named": true
+        },
+        {
+          "type": "right_section",
           "named": true
         },
         {

@@ -63,6 +63,9 @@ module.exports = grammar({
     [$._atom, $._simple_pattern],
     [$._atom, $.constructor_pattern],
     [$.unit_expression, $.unit_pattern],
+    // Left operator section vs infix: after `( app-or-atom`, seeing `op`
+    // could reduce to _simple_expression (for infix) or continue left_section.
+    [$._simple_expression, $.left_section],
   ],
 
   rules: {
@@ -372,6 +375,9 @@ module.exports = grammar({
         $.list_expression,
         $.projection_expression,
         $.type_application_expression,
+        $.operator_section,
+        $.right_section,
+        $.left_section,
       ),
 
     case_branch: ($) =>
@@ -438,12 +444,39 @@ module.exports = grammar({
         $.block_expression,
         $.projection_expression,
         $.type_application_expression,
+        $.operator_section,
+        $.right_section,
+        $.left_section,
       ),
 
     unit_expression: ($) => prec(2, seq("(", ")")),
 
     parenthesized_expression: ($) =>
       seq("(", $._expression, optional(seq("::", $._type)), ")"),
+
+    // Operator sections — expression-level counterpart of (op) in declarations.
+    // (op)      → operator as first-class value
+    // (op expr) → right section: \x -> x op expr
+    // (expr op) → left section:  \x -> expr op x
+
+    operator_section: ($) =>
+      seq("(", field("operator", $.operator), ")"),
+
+    right_section: ($) =>
+      seq(
+        "(",
+        field("operator", $.operator),
+        field("operand", $._expression),
+        ")",
+      ),
+
+    left_section: ($) =>
+      seq(
+        "(",
+        field("operand", $._application_or_atom),
+        field("operator", $.operator),
+        ")",
+      ),
 
     tuple_expression: ($) =>
       seq("(", $._expression, ",", sep1($._expression, ","), ")"),

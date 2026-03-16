@@ -1547,6 +1547,18 @@
         {
           "type": "SYMBOL",
           "name": "type_application_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "operator_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "right_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "left_section"
         }
       ]
     },
@@ -1861,6 +1873,18 @@
         {
           "type": "SYMBOL",
           "name": "type_application_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "operator_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "right_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "left_section"
         }
       ]
     },
@@ -1912,6 +1936,85 @@
               "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
+    "operator_section": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "operator",
+          "content": {
+            "type": "SYMBOL",
+            "name": "operator"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
+    "right_section": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "operator",
+          "content": {
+            "type": "SYMBOL",
+            "name": "operator"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "operand",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_expression"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
+    "left_section": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "operand",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_application_or_atom"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "operator",
+          "content": {
+            "type": "SYMBOL",
+            "name": "operator"
+          }
         },
         {
           "type": "STRING",
@@ -2672,6 +2775,10 @@
     [
       "unit_expression",
       "unit_pattern"
+    ],
+    [
+      "_simple_expression",
+      "left_section"
     ]
   ],
   "precedences": [],
