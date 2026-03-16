@@ -458,14 +458,20 @@ module.exports = grammar({
     // (op)      → operator as first-class value
     // (op expr) → right section: \x -> x op expr
     // (expr op) → left section:  \x -> expr op x
+    //
+    // _section_op includes `.` (infixr 9, function composition) which is
+    // excluded from the operator regex to avoid conflicts with forall/module
+    // separators, but is valid in section position.
+
+    _section_op: ($) => choice($.operator, alias(".", $.operator)),
 
     operator_section: ($) =>
-      seq("(", field("operator", $.operator), ")"),
+      seq("(", field("operator", $._section_op), ")"),
 
     right_section: ($) =>
       seq(
         "(",
-        field("operator", $.operator),
+        field("operator", $._section_op),
         field("operand", $._expression),
         ")",
       ),
@@ -474,7 +480,7 @@ module.exports = grammar({
       seq(
         "(",
         field("operand", $._application_or_atom),
-        field("operator", $.operator),
+        field("operator", $._section_op),
         ")",
       ),
 

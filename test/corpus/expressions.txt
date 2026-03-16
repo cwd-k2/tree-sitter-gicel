@@ -642,6 +642,50 @@ f := map (f x *) xs
       (identifier))))
 
 ===============
+Dot operator section prefix
+===============
+
+f := (.)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (operator_section
+      operator: (operator))))
+
+===============
+Dot right section
+===============
+
+f := (. show)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (right_section
+      operator: (operator)
+      operand: (identifier))))
+
+===============
+Dot left section
+===============
+
+f := (show .)
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (left_section
+      operand: (identifier)
+      operator: (operator))))
+
+===============
 Parenthesized infix still works
 ===============
 

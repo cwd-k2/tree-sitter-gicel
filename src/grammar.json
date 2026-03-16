@@ -1943,6 +1943,24 @@
         }
       ]
     },
+    "_section_op": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "operator"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "."
+          },
+          "named": true,
+          "value": "operator"
+        }
+      ]
+    },
     "operator_section": {
       "type": "SEQ",
       "members": [
@@ -1955,7 +1973,7 @@
           "name": "operator",
           "content": {
             "type": "SYMBOL",
-            "name": "operator"
+            "name": "_section_op"
           }
         },
         {
@@ -1976,7 +1994,7 @@
           "name": "operator",
           "content": {
             "type": "SYMBOL",
-            "name": "operator"
+            "name": "_section_op"
           }
         },
         {
@@ -2013,7 +2031,7 @@
           "name": "operator",
           "content": {
             "type": "SYMBOL",
-            "name": "operator"
+            "name": "_section_op"
           }
         },
         {
