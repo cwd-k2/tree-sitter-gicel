@@ -413,3 +413,97 @@ instance Collection (List a) {
       (method_definition
         name: (identifier)
         value: (identifier)))))
+
+===============
+Class with tuple constraint
+===============
+
+class (Functor f, Foldable f) => Traversable f {
+  traverse :: \a b g. Applicative g => (a -> g b) -> f a -> g (f b)
+}
+
+---
+
+(source_file
+  (class_declaration
+    (constraint
+      (constructor)
+      (identifier)
+      (constructor)
+      (identifier))
+    name: (constructor)
+    (identifier)
+    (method_signature
+      name: (identifier)
+      type: (forall_type
+        (identifier)
+        (identifier)
+        (identifier)
+        (qualified_type
+          (type_application
+            constructor: (constructor)
+            argument: (identifier))
+          (function_type
+            (parenthesized_type
+              (function_type
+                (identifier)
+                (type_application
+                  constructor: (identifier)
+                  argument: (identifier))))
+            (function_type
+              (type_application
+                constructor: (identifier)
+                argument: (identifier))
+              (type_application
+                constructor: (identifier)
+                argument: (parenthesized_type
+                  (type_application
+                    constructor: (identifier)
+                    argument: (identifier)))))))))))
+
+===============
+Instance with tuple constraint
+===============
+
+instance (Eq a, Eq b) => Eq (a, b) {
+  eq := \x y. case x {
+    (a1, b1) -> case y { (a2, b2) -> eq a1 a2 }
+  }
+}
+
+---
+
+(source_file
+  (instance_declaration
+    (constraint
+      (constructor)
+      (identifier)
+      (constructor)
+      (identifier))
+    class: (constructor)
+    (tuple_type
+      (identifier)
+      (identifier))
+    (instance_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          pattern: (identifier)
+          body: (case_expression
+            scrutinee: (identifier)
+            (case_branch
+              pattern: (tuple_pattern
+                (identifier)
+                (identifier))
+              body: (case_expression
+                scrutinee: (identifier)
+                (case_branch
+                  pattern: (tuple_pattern
+                    (identifier)
+                    (identifier))
+                  body: (application
+                    (application
+                      (identifier)
+                      (identifier))
+                    (identifier)))))))))))

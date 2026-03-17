@@ -700,3 +700,68 @@ f := (1 + 2)
         (integer)
         operator: (operator)
         (integer)))))
+
+===============
+Lambda as application argument
+===============
+
+main := fix \self n. case n { 0 -> 1; _ -> n }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (identifier)
+      (lambda_expression
+        pattern: (identifier)
+        pattern: (identifier)
+        body: (case_expression
+          scrutinee: (identifier)
+          (case_branch
+            pattern: (integer)
+            body: (integer))
+          (case_branch
+            pattern: (wildcard)
+            body: (identifier)))))))
+
+===============
+Lambda as nested application argument
+===============
+
+main := \f. fix \self s. case s { LNil -> z; LCons x t -> f x (self (t ())) }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (identifier)
+      body: (application
+        (identifier)
+        (lambda_expression
+          pattern: (identifier)
+          pattern: (identifier)
+          body: (case_expression
+            scrutinee: (identifier)
+            (case_branch
+              pattern: (constructor)
+              body: (identifier))
+            (case_branch
+              pattern: (constructor_pattern
+                (constructor)
+                (identifier)
+                (identifier))
+              body: (application
+                (application
+                  (identifier)
+                  (identifier))
+                (parenthesized_expression
+                  (application
+                    (identifier)
+                    (parenthesized_expression
+                      (application
+                        (identifier)
+                        (unit_expression)))))))))))))

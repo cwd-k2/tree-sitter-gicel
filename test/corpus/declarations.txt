@@ -403,3 +403,60 @@ type Empty :: Type := {}
   (type_family_declaration
     name: (constructor)
     result: (constructor)))
+
+===============
+Dot operator fixity
+===============
+
+infixr 9 .
+
+---
+
+(source_file
+  (fixity_declaration
+    precedence: (integer)
+    operator: (operator)))
+
+===============
+Dot operator definition
+===============
+
+(.) :: \b c a. (b -> c) -> (a -> b) -> a -> c
+(.) := \f g x. f (g x)
+
+---
+
+(source_file
+  (type_annotation
+    name: (parenthesized_operator
+      (operator))
+    type: (forall_type
+      (identifier)
+      (identifier)
+      (identifier)
+      (function_type
+        (parenthesized_type
+          (function_type
+            (identifier)
+            (identifier)))
+        (function_type
+          (parenthesized_type
+            (function_type
+              (identifier)
+              (identifier)))
+          (function_type
+            (identifier)
+            (identifier))))))
+  (value_definition
+    name: (parenthesized_operator
+      (operator))
+    value: (lambda_expression
+      pattern: (identifier)
+      pattern: (identifier)
+      pattern: (identifier)
+      body: (application
+        (identifier)
+        (parenthesized_expression
+          (application
+            (identifier)
+            (identifier)))))))
