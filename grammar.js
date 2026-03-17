@@ -79,6 +79,7 @@ module.exports = grammar({
       choice(
         $.import_declaration,
         $.data_declaration,
+        $.type_family_declaration,
         $.type_alias_declaration,
         $.fixity_declaration,
         $.class_declaration,
@@ -123,6 +124,42 @@ module.exports = grammar({
 
     // --- type ---
 
+    // type Name params :: Kind = { equations }
+    // type Name params :: (r : Kind) | deps = { equations }
+    type_family_declaration: ($) =>
+      seq(
+        "type",
+        field("name", $.constructor),
+        repeat($._type_binder),
+        "::",
+        field("result", $._type_family_result),
+        "=",
+        "{",
+        optional(seq(sep1($.type_family_equation, ";"), optional(";"))),
+        "}",
+      ),
+
+    _type_family_result: ($) =>
+      choice(
+        $.injective_result,
+        $._kind,
+      ),
+
+    injective_result: ($) =>
+      seq(
+        $.kinded_variable,
+        "|",
+        $.fundep_list,
+      ),
+
+    type_family_equation: ($) =>
+      seq(
+        field("name", $.constructor),
+        repeat($._type_arg),
+        "=",
+        field("rhs", $._type),
+      ),
+
     type_alias_declaration: ($) =>
       seq(
         "type",
@@ -149,9 +186,38 @@ module.exports = grammar({
         repeat($.constraint),
         field("name", $.constructor),
         repeat($._type_binder),
+        optional($.functional_dependency),
         "{",
-        optional(seq(sep1($.method_signature, ";"), optional(";"))),
+        optional(seq(sep1($._class_member, ";"), optional(";"))),
         "}",
+      ),
+
+    _class_member: ($) =>
+      choice(
+        $.method_signature,
+        $.assoc_type_signature,
+        $.assoc_data_signature,
+      ),
+
+    // type Name params :: Kind (in class body)
+    assoc_type_signature: ($) =>
+      seq("type", field("name", $.constructor), repeat($._type_binder), "::", $._type_family_result),
+
+    // data Name params :: Kind (in class body)
+    assoc_data_signature: ($) =>
+      seq("data", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
+
+    // | a -> b, c -> d (after class params or in type family result)
+    functional_dependency: ($) =>
+      seq("|", $.fundep_list),
+
+    fundep_list: ($) => sep1($.fundep, ","),
+
+    fundep: ($) =>
+      seq(
+        field("from", $.identifier),
+        "->",
+        repeat1(field("to", $.identifier)),
       ),
 
     // Constraint: ClassName arg1 arg2 ... =>
@@ -188,9 +254,24 @@ module.exports = grammar({
     instance_body: ($) =>
       seq(
         "{",
-        optional(seq(sep1($.method_definition, ";"), optional(";"))),
+        optional(seq(sep1($._instance_member, ";"), optional(";"))),
         "}",
       ),
+
+    _instance_member: ($) =>
+      choice(
+        $.method_definition,
+        $.assoc_type_definition,
+        $.assoc_data_definition,
+      ),
+
+    // type Name TypePattern* = TypeExpr (in instance body)
+    assoc_type_definition: ($) =>
+      seq("type", field("name", $.constructor), repeat($._type_arg), "=", field("rhs", $._type)),
+
+    // data Name TypePattern* = Con fields | Con fields (in instance body)
+    assoc_data_definition: ($) =>
+      seq("data", field("name", $.constructor), repeat($._type_arg), "=", $.adt_constructors),
 
     method_signature: ($) =>
       seq(field("name", choice($.identifier, $.parenthesized_operator)), "::", field("type", $._type)),
@@ -273,6 +354,7 @@ module.exports = grammar({
       choice(
         $.identifier,
         $.constructor,
+        $.wildcard,
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
@@ -297,7 +379,10 @@ module.exports = grammar({
         "}",
       ),
 
-    row_field: ($) => seq(field("label", $.identifier), ":", $._type),
+    row_field: ($) =>
+      seq(field("label", $.identifier), ":", field("type", $._type), optional($.multiplicity_annotation)),
+
+    multiplicity_annotation: ($) => seq("@", $._type_arg),
 
     // ════════════════════════════════════════════════════════════════════
     //  Expressions
@@ -514,7 +599,7 @@ module.exports = grammar({
       )),
 
     projection_expression: ($) =>
-      prec.left(20, seq($._atom, "!#", field("field", $.identifier))),
+      prec.left(20, seq($._atom, ".#", field("field", $.identifier))),
 
     type_application_expression: ($) =>
       prec(15, seq($._atom, "@", $._type_arg)),

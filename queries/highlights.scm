@@ -16,13 +16,14 @@
 ] @keyword
 
 ; ── Built-in identifiers ───────────────────────────────────────────
-((identifier) @keyword.function
-  (#any-of? @keyword.function
+((identifier) @function.builtin
+  (#any-of? @function.builtin
     "pure" "bind" "thunk" "force" "assumption" "rec" "fix"))
 
 ; ── Declarations ───────────────────────────────────────────────────
 (data_declaration name: (constructor) @type.definition)
 (type_alias_declaration name: (constructor) @type.definition)
+(type_family_declaration name: (constructor) @type.definition)
 (class_declaration name: (constructor) @type.definition)
 (instance_declaration class: (constructor) @type)
 
@@ -42,6 +43,13 @@
 (fixity_declaration precedence: (integer) @number)
 (fixity_declaration operator: (operator) @operator)
 (fixity_declaration operator: (identifier) @function)
+
+; ── Type families ─────────────────────────────────────────────────
+(type_family_equation name: (constructor) @type)
+(assoc_type_signature name: (constructor) @type.definition)
+(assoc_data_signature name: (constructor) @type.definition)
+(assoc_type_definition name: (constructor) @type)
+(assoc_data_definition name: (constructor) @type.definition)
 
 ; ── Imports ─────────────────────────────────────────────────────────
 (import_declaration (module_name (constructor) @module))
@@ -69,9 +77,10 @@
 (type_annotated_expression "::" @punctuation.special)
 
 (field_value label: (identifier) @property)
-(projection_expression "!#" @operator)
+(projection_expression ".#" @operator)
 (projection_expression field: (identifier) @property)
 (type_application_expression "@" @operator)
+(multiplicity_annotation "@" @operator)
 
 ; ── Operator sections ─────────────────────────────────────────────
 (operator_section operator: (operator) @operator)

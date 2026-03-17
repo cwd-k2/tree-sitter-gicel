@@ -232,3 +232,188 @@ instance Eq Bool
   (instance_declaration
     class: (constructor)
     (constructor)))
+
+===============
+Class with functional dependency
+===============
+
+class Convert a b | a -> b {
+  convert :: a -> b
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (identifier)
+    (functional_dependency
+      (fundep_list
+        (fundep
+          from: (identifier)
+          to: (identifier))))
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (identifier)))))
+
+===============
+Class with multiple fundeps
+===============
+
+class Iso a b | a -> b, b -> a {
+  to :: a -> b
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (identifier)
+    (functional_dependency
+      (fundep_list
+        (fundep
+          from: (identifier)
+          to: (identifier))
+        (fundep
+          from: (identifier)
+          to: (identifier))))
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (identifier)
+        (identifier)))))
+
+===============
+Class with associated type
+===============
+
+class Container c {
+  type Elem c :: Type;
+  cfold :: forall b. (Elem c -> b -> b) -> b -> c -> b
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (assoc_type_signature
+      name: (constructor)
+      (identifier)
+      (constructor))
+    (method_signature
+      name: (identifier)
+      type: (forall_type
+        (identifier)
+        (function_type
+          (parenthesized_type
+            (function_type
+              (type_application
+                constructor: (constructor)
+                argument: (identifier))
+              (function_type
+                (identifier)
+                (identifier))))
+          (function_type
+            (identifier)
+            (function_type
+              (identifier)
+              (identifier))))))))
+
+===============
+Class with associated data family
+===============
+
+class Collection c {
+  data Key c :: Type;
+  insert :: Key c -> c -> c
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (constructor)
+    (identifier)
+    (assoc_data_signature
+      name: (constructor)
+      (identifier)
+      (constructor))
+    (method_signature
+      name: (identifier)
+      type: (function_type
+        (type_application
+          constructor: (constructor)
+          argument: (identifier))
+        (function_type
+          (identifier)
+          (identifier))))))
+
+===============
+Instance with associated type definition
+===============
+
+instance Container (List a) {
+  type Elem (List a) = a;
+  cfold := foldr
+}
+
+---
+
+(source_file
+  (instance_declaration
+    class: (constructor)
+    (parenthesized_type
+      (type_application
+        constructor: (constructor)
+        argument: (identifier)))
+    (instance_body
+      (assoc_type_definition
+        name: (constructor)
+        (parenthesized_type
+          (type_application
+            constructor: (constructor)
+            argument: (identifier)))
+        rhs: (identifier))
+      (method_definition
+        name: (identifier)
+        value: (identifier)))))
+
+===============
+Instance with associated data definition
+===============
+
+instance Collection (List a) {
+  data Key (List a) = ListIndex Int;
+  insert := listInsert
+}
+
+---
+
+(source_file
+  (instance_declaration
+    class: (constructor)
+    (parenthesized_type
+      (type_application
+        constructor: (constructor)
+        argument: (identifier)))
+    (instance_body
+      (assoc_data_definition
+        name: (constructor)
+        (parenthesized_type
+          (type_application
+            constructor: (constructor)
+            argument: (identifier)))
+        (adt_constructors
+          (adt_constructor
+            name: (constructor)
+            (constructor))))
+      (method_definition
+        name: (identifier)
+        value: (identifier)))))

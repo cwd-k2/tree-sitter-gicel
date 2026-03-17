@@ -493,7 +493,7 @@ f := case x {}
 Projection expression
 ===============
 
-f := r!#x
+f := r.#x
 
 ---
 
@@ -508,7 +508,7 @@ f := r!#x
 Chained projection
 ===============
 
-f := r!#x!#y
+f := r.#x.#y
 
 ---
 

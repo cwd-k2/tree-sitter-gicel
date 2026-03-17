@@ -326,3 +326,80 @@ y := 2
   (value_definition
     name: (identifier)
     value: (integer)))
+
+===============
+Type family simple
+===============
+
+type Elem (c : Type) :: Type = {
+  Elem (List a) = a;
+  Elem String = Rune
+}
+
+---
+
+(source_file
+  (type_family_declaration
+    name: (constructor)
+    (kinded_variable
+      name: (identifier)
+      kind: (constructor))
+    result: (constructor)
+    (type_family_equation
+      name: (constructor)
+      (parenthesized_type
+        (type_application
+          constructor: (constructor)
+          argument: (identifier)))
+      rhs: (identifier))
+    (type_family_equation
+      name: (constructor)
+      (constructor)
+      rhs: (constructor))))
+
+===============
+Type family with injective result
+===============
+
+type Effects (mode : Type) :: (r : Row) | r -> mode = {
+  Effects ReadOnly = { get : () -> String }
+}
+
+---
+
+(source_file
+  (type_family_declaration
+    name: (constructor)
+    (kinded_variable
+      name: (identifier)
+      kind: (constructor))
+    result: (injective_result
+      (kinded_variable
+        name: (identifier)
+        kind: (constructor))
+      (fundep_list
+        (fundep
+          from: (identifier)
+          to: (identifier))))
+    (type_family_equation
+      name: (constructor)
+      (constructor)
+      rhs: (row_type
+        (row_field
+          label: (identifier)
+          type: (function_type
+            (unit_type)
+            (constructor)))))))
+
+===============
+Type family empty
+===============
+
+type Empty :: Type = {}
+
+---
+
+(source_file
+  (type_family_declaration
+    name: (constructor)
+    result: (constructor)))

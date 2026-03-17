@@ -208,10 +208,10 @@ f :: { x : Int, y : Bool }
     type: (row_type
       (row_field
         label: (identifier)
-        (constructor))
+        type: (constructor))
       (row_field
         label: (identifier)
-        (constructor)))))
+        type: (constructor)))))
 
 ===============
 Open row type with tail
@@ -227,7 +227,7 @@ f :: { x : Int | r }
     type: (row_type
       (row_field
         label: (identifier)
-        (constructor))
+        type: (constructor))
       (identifier))))
 
 ===============
@@ -256,3 +256,43 @@ f :: { | r }
     name: (identifier)
     type: (row_type
       (identifier))))
+
+===============
+Row field with multiplicity annotation
+===============
+
+f :: { h : Handle @Linear | r }
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type
+      (row_field
+        label: (identifier)
+        type: (constructor)
+        (multiplicity_annotation
+          (constructor)))
+      (identifier))))
+
+===============
+Row field with multiple fields and multiplicity
+===============
+
+f :: { x : Int @Affine, y : Bool }
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (row_type
+      (row_field
+        label: (identifier)
+        type: (constructor)
+        (multiplicity_annotation
+          (constructor)))
+      (row_field
+        label: (identifier)
+        type: (constructor)))))
