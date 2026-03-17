@@ -126,7 +126,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": ":="
         },
         {
           "type": "CHOICE",
@@ -312,7 +312,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": ":="
         },
         {
           "type": "STRING",
@@ -424,7 +424,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": "=:"
         },
         {
           "type": "FIELD",
@@ -460,7 +460,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": ":="
         },
         {
           "type": "FIELD",
@@ -756,7 +756,7 @@
         },
         {
           "type": "STRING",
-          "value": "->"
+          "value": "=:"
         },
         {
           "type": "REPEAT1",
@@ -1005,7 +1005,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": "=:"
         },
         {
           "type": "FIELD",
@@ -1041,7 +1041,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": "=:"
         },
         {
           "type": "SYMBOL",
@@ -1362,7 +1362,7 @@
       "members": [
         {
           "type": "STRING",
-          "value": "forall"
+          "value": "\\"
         },
         {
           "type": "REPEAT1",
@@ -1758,16 +1758,19 @@
             "value": "\\"
           },
           {
-            "type": "FIELD",
-            "name": "pattern",
+            "type": "REPEAT1",
             "content": {
-              "type": "SYMBOL",
-              "name": "_pattern"
+              "type": "FIELD",
+              "name": "pattern",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_simple_pattern"
+              }
             }
           },
           {
             "type": "STRING",
-            "value": "->"
+            "value": "."
           },
           {
             "type": "FIELD",
@@ -2682,7 +2685,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": ":"
         },
         {
           "type": "FIELD",
@@ -3003,7 +3006,7 @@
         },
         {
           "type": "STRING",
-          "value": "="
+          "value": ":"
         },
         {
           "type": "FIELD",

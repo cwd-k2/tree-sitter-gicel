@@ -2,7 +2,7 @@
 Lambda simple
 ===============
 
-f := \x -> x
+f := \x. x
 
 ---
 
@@ -14,10 +14,10 @@ f := \x -> x
       body: (identifier))))
 
 ===============
-Lambda curried
+Lambda multi-parameter
 ===============
 
-f := \x -> \y -> x
+f := \x y. x
 
 ---
 
@@ -26,15 +26,14 @@ f := \x -> \y -> x
     name: (identifier)
     value: (lambda_expression
       pattern: (identifier)
-      body: (lambda_expression
-        pattern: (identifier)
-        body: (identifier)))))
+      pattern: (identifier)
+      body: (identifier))))
 
 ===============
 Lambda with wildcard
 ===============
 
-f := \_ -> 1
+f := \_. 1
 
 ---
 
@@ -49,7 +48,7 @@ f := \_ -> 1
 Lambda with constructor pattern
 ===============
 
-f := \(Just x) -> x
+f := \(Just x). x
 
 ---
 
@@ -67,7 +66,7 @@ f := \(Just x) -> x
 Lambda with tuple pattern
 ===============
 
-f := \(a, b) -> a
+f := \(a, b). a
 
 ---
 
@@ -84,7 +83,7 @@ f := \(a, b) -> a
 Lambda with record pattern
 ===============
 
-f := \{ x = a, y = b } -> a
+f := \{ x: a, y: b }. a
 
 ---
 
@@ -234,7 +233,7 @@ f := g x
 Record expression
 ===============
 
-f := { x = 1, y = 2 }
+f := { x: 1, y: 2 }
 
 ---
 
@@ -253,7 +252,7 @@ f := { x = 1, y = 2 }
 Record update expression
 ===============
 
-f := { r | x = 1 }
+f := { r | x: 1 }
 
 ---
 

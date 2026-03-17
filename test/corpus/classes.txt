@@ -106,7 +106,7 @@ Class with kinded parameter
 ===============
 
 class Functor (f : Type -> Type) {
-  fmap :: forall a b. (a -> b) -> f a -> f b
+  fmap :: \a b. (a -> b) -> f a -> f b
 }
 
 ---
@@ -142,7 +142,7 @@ Instance declaration simple
 ===============
 
 instance Eq Bool {
-  eq := \x -> \y -> True
+  eq := \x y. True
 }
 
 ---
@@ -156,17 +156,16 @@ instance Eq Bool {
         name: (identifier)
         value: (lambda_expression
           pattern: (identifier)
-          body: (lambda_expression
-            pattern: (identifier)
-            body: (constructor)))))))
+          pattern: (identifier)
+          body: (constructor))))))
 
 ===============
 Instance with multiple methods
 ===============
 
 instance Eq Bool {
-  eq := \x -> \y -> True;
-  neq := \x -> \y -> False
+  eq := \x y. True;
+  neq := \x y. False
 }
 
 ---
@@ -180,23 +179,21 @@ instance Eq Bool {
         name: (identifier)
         value: (lambda_expression
           pattern: (identifier)
-          body: (lambda_expression
-            pattern: (identifier)
-            body: (constructor))))
+          pattern: (identifier)
+          body: (constructor)))
       (method_definition
         name: (identifier)
         value: (lambda_expression
           pattern: (identifier)
-          body: (lambda_expression
-            pattern: (identifier)
-            body: (constructor)))))))
+          pattern: (identifier)
+          body: (constructor))))))
 
 ===============
 Instance with constraint
 ===============
 
 instance Eq a => Eq (Maybe a) {
-  eq := \x -> \y -> True
+  eq := \x y. True
 }
 
 ---
@@ -216,9 +213,8 @@ instance Eq a => Eq (Maybe a) {
         name: (identifier)
         value: (lambda_expression
           pattern: (identifier)
-          body: (lambda_expression
-            pattern: (identifier)
-            body: (constructor)))))))
+          pattern: (identifier)
+          body: (constructor))))))
 
 ===============
 Instance without body
@@ -237,7 +233,7 @@ instance Eq Bool
 Class with functional dependency
 ===============
 
-class Convert a b | a -> b {
+class Convert a b | a =: b {
   convert :: a -> b
 }
 
@@ -263,7 +259,7 @@ class Convert a b | a -> b {
 Class with multiple fundeps
 ===============
 
-class Iso a b | a -> b, b -> a {
+class Iso a b | a =: b, b =: a {
   to :: a -> b
 }
 
@@ -294,7 +290,7 @@ Class with associated type
 
 class Container c {
   type Elem c :: Type;
-  cfold :: forall b. (Elem c -> b -> b) -> b -> c -> b
+  cfold :: \b. (Elem c -> b -> b) -> b -> c -> b
 }
 
 ---
@@ -360,7 +356,7 @@ Instance with associated type definition
 ===============
 
 instance Container (List a) {
-  type Elem (List a) = a;
+  type Elem (List a) =: a;
   cfold := foldr
 }
 
@@ -390,7 +386,7 @@ Instance with associated data definition
 ===============
 
 instance Collection (List a) {
-  data Key (List a) = ListIndex Int;
+  data Key (List a) =: ListIndex Int;
   insert := listInsert
 }
 

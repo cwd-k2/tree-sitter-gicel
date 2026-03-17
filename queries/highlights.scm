@@ -6,7 +6,6 @@
   "data"
   "do"
   "type"
-  "forall"
   "class"
   "instance"
   "import"
@@ -55,6 +54,7 @@
 (import_declaration (module_name (constructor) @module))
 
 ; ── Types ──────────────────────────────────────────────────────────
+(forall_type "\\" @keyword)
 (forall_type (identifier) @type)
 (kinded_variable name: (identifier) @type)
 (type_application constructor: (constructor) @type)
@@ -106,9 +106,9 @@
 (block_comment) @comment
 
 ; ── Punctuation ────────────────────────────────────────────────────
-["->" "=>" "::" ":="] @punctuation.special
+["->" "=>" "::" ":=" "=:"] @punctuation.special
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
-["," ";" "|" "." ":" "=" "\\"] @punctuation.delimiter
+["," ";" "|" "." ":" "\\"] @punctuation.delimiter
 
 ; ── Operators (general fallback) ───────────────────────────────────
 (operator) @operator

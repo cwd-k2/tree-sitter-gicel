@@ -103,7 +103,7 @@ module.exports = grammar({
         "data",
         field("name", $.constructor),
         repeat($._type_binder),
-        "=",
+        ":=",
         choice($.adt_constructors, $.gadt_body),
       ),
 
@@ -124,8 +124,8 @@ module.exports = grammar({
 
     // --- type ---
 
-    // type Name params :: Kind = { equations }
-    // type Name params :: (r : Kind) | deps = { equations }
+    // type Name params :: Kind := { equations }
+    // type Name params :: (r : Kind) | deps := { equations }
     type_family_declaration: ($) =>
       seq(
         "type",
@@ -133,7 +133,7 @@ module.exports = grammar({
         repeat($._type_binder),
         "::",
         field("result", $._type_family_result),
-        "=",
+        ":=",
         "{",
         optional(seq(sep1($.type_family_equation, ";"), optional(";"))),
         "}",
@@ -156,7 +156,7 @@ module.exports = grammar({
       seq(
         field("name", $.constructor),
         repeat($._type_arg),
-        "=",
+        "=:",
         field("rhs", $._type),
       ),
 
@@ -165,7 +165,7 @@ module.exports = grammar({
         "type",
         field("name", $.constructor),
         repeat($._type_binder),
-        "=",
+        ":=",
         field("type", $._type),
       ),
 
@@ -207,7 +207,7 @@ module.exports = grammar({
     assoc_data_signature: ($) =>
       seq("data", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
 
-    // | a -> b, c -> d (after class params or in type family result)
+    // | a =: b, c =: d (after class params or in type family result)
     functional_dependency: ($) =>
       seq("|", $.fundep_list),
 
@@ -216,7 +216,7 @@ module.exports = grammar({
     fundep: ($) =>
       seq(
         field("from", $.identifier),
-        "->",
+        "=:",
         repeat1(field("to", $.identifier)),
       ),
 
@@ -265,13 +265,13 @@ module.exports = grammar({
         $.assoc_data_definition,
       ),
 
-    // type Name TypePattern* = TypeExpr (in instance body)
+    // type Name TypePattern* =: TypeExpr (in instance body)
     assoc_type_definition: ($) =>
-      seq("type", field("name", $.constructor), repeat($._type_arg), "=", field("rhs", $._type)),
+      seq("type", field("name", $.constructor), repeat($._type_arg), "=:", field("rhs", $._type)),
 
-    // data Name TypePattern* = Con fields | Con fields (in instance body)
+    // data Name TypePattern* =: Con fields | Con fields (in instance body)
     assoc_data_definition: ($) =>
-      seq("data", field("name", $.constructor), repeat($._type_arg), "=", $.adt_constructors),
+      seq("data", field("name", $.constructor), repeat($._type_arg), "=:", $.adt_constructors),
 
     method_signature: ($) =>
       seq(field("name", choice($.identifier, $.parenthesized_operator)), "::", field("type", $._type)),
@@ -334,7 +334,7 @@ module.exports = grammar({
         $.row_type,
       ),
 
-    forall_type: ($) => seq("forall", repeat1($._type_binder), ".", $._type),
+    forall_type: ($) => seq("\\", repeat1($._type_binder), ".", $._type),
 
     // Constraint is just _type before =>. Eq a parses as type_application(Eq, a).
     qualified_type: ($) => prec.right(1, seq($._type, "=>", $._type)),
@@ -405,7 +405,7 @@ module.exports = grammar({
     lambda_expression: ($) =>
       prec.right(
         0,
-        seq("\\", field("pattern", $._pattern), "->", field("body", $._expression)),
+        seq("\\", repeat1(field("pattern", $._simple_pattern)), ".", field("body", $._expression)),
       ),
 
     // case_expression uses _case_brace (external token) instead of "{".
@@ -545,7 +545,7 @@ module.exports = grammar({
     // (expr op) → left section:  \x -> expr op x
     //
     // _section_op includes `.` (infixr 9, function composition) which is
-    // excluded from the operator regex to avoid conflicts with forall/module
+    // excluded from the operator regex to avoid conflicts with quantifier/lambda/module
     // separators, but is valid in section position.
 
     _section_op: ($) => choice($.operator, alias(".", $.operator)),
@@ -588,7 +588,7 @@ module.exports = grammar({
       )),
 
     field_value: ($) =>
-      seq(field("label", $.identifier), "=", field("value", $._expression)),
+      seq(field("label", $.identifier), ":", field("value", $._expression)),
 
     block_expression: ($) =>
       prec(-1, seq(
@@ -643,7 +643,7 @@ module.exports = grammar({
       ),
 
     field_pattern: ($) =>
-      seq(field("label", $.identifier), "=", field("value", $._pattern)),
+      seq(field("label", $.identifier), ":", field("value", $._pattern)),
 
     // ════════════════════════════════════════════════════════════════════
     //  Terminals
@@ -652,7 +652,7 @@ module.exports = grammar({
     identifier: (_) => /[a-z][a-zA-Z0-9_']*|_[a-zA-Z0-9_']+/,
     constructor: (_) => /[A-Z][a-zA-Z0-9_']*/,
     // `:` and `.` are handled specially by the lexer (type annotations,
-    // forall body separator, etc.) and must not appear in operator tokens.
+    // quantifier/lambda body separator, etc.) and must not appear in operator tokens.
     // `->` and `<-` are reserved and excluded from the operator regex
     // so they are always lexed as keyword tokens, never as operators.
     // The regex handles three cases:

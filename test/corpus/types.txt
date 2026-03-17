@@ -1,8 +1,8 @@
 ===============
-Forall with single binder
+Quantifier with single binder
 ===============
 
-f :: forall a. a -> a
+f :: \a. a -> a
 
 ---
 
@@ -16,10 +16,10 @@ f :: forall a. a -> a
         (identifier)))))
 
 ===============
-Forall with multiple binders
+Quantifier with multiple binders
 ===============
 
-f :: forall a b. a -> b -> a
+f :: \a b. a -> b -> a
 
 ---
 
@@ -36,10 +36,10 @@ f :: forall a b. a -> b -> a
           (identifier))))))
 
 ===============
-Forall with kinded variable
+Quantifier with kinded variable
 ===============
 
-f :: forall (f : Type -> Type). f a -> f b
+f :: \(f : Type -> Type). f a -> f b
 
 ---
 

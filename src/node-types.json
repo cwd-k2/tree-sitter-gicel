@@ -1402,11 +1402,47 @@
         ]
       },
       "pattern": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
-            "type": "_pattern",
+            "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "integer",
+            "named": true
+          },
+          {
+            "type": "parenthesized_pattern",
+            "named": true
+          },
+          {
+            "type": "record_pattern",
+            "named": true
+          },
+          {
+            "type": "rune",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "tuple_pattern",
+            "named": true
+          },
+          {
+            "type": "unit_pattern",
+            "named": true
+          },
+          {
+            "type": "wildcard",
             "named": true
           }
         ]
@@ -2579,7 +2615,7 @@
     "named": false
   },
   {
-    "type": "=",
+    "type": "=:",
     "named": false
   },
   {
@@ -2633,10 +2669,6 @@
   {
     "type": "escape_sequence",
     "named": true
-  },
-  {
-    "type": "forall",
-    "named": false
   },
   {
     "type": "identifier",

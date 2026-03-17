@@ -49,7 +49,7 @@ import Std.Str
 Simple ADT enumeration
 ===============
 
-data Bool = True | False
+data Bool := True | False
 
 ---
 
@@ -66,7 +66,7 @@ data Bool = True | False
 ADT with type parameter
 ===============
 
-data Maybe a = Just a | Nothing
+data Maybe a := Just a | Nothing
 
 ---
 
@@ -85,7 +85,7 @@ data Maybe a = Just a | Nothing
 ADT with multiple parameters
 ===============
 
-data Result e a = Ok a | Err e
+data Result e a := Ok a | Err e
 
 ---
 
@@ -106,7 +106,7 @@ data Result e a = Ok a | Err e
 ADT with recursive type
 ===============
 
-data List a = Cons a (List a) | Nil
+data List a := Cons a (List a) | Nil
 
 ---
 
@@ -129,7 +129,7 @@ data List a = Cons a (List a) | Nil
 ADT with kinded parameter
 ===============
 
-data Dict (c : Constraint) = MkDict
+data Dict (c : Constraint) := MkDict
 
 ---
 
@@ -147,7 +147,7 @@ data Dict (c : Constraint) = MkDict
 GADT declaration
 ===============
 
-data Expr a = {
+data Expr a := {
   LitInt :: Int -> Expr Int;
   LitBool :: Bool -> Expr Bool
 }
@@ -178,7 +178,7 @@ data Expr a = {
 Type alias
 ===============
 
-type Effect r a = Computation r r a
+type Effect r a := Computation r r a
 
 ---
 
@@ -331,9 +331,9 @@ y := 2
 Type family simple
 ===============
 
-type Elem (c : Type) :: Type = {
-  Elem (List a) = a;
-  Elem String = Rune
+type Elem (c : Type) :: Type := {
+  Elem (List a) =: a;
+  Elem String =: Rune
 }
 
 ---
@@ -361,8 +361,8 @@ type Elem (c : Type) :: Type = {
 Type family with injective result
 ===============
 
-type Effects (mode : Type) :: (r : Row) | r -> mode = {
-  Effects ReadOnly = { get : () -> String }
+type Effects (mode : Type) :: (r : Row) | r =: mode := {
+  Effects ReadOnly =: { get : () -> String }
 }
 
 ---
@@ -395,7 +395,7 @@ type Effects (mode : Type) :: (r : Row) | r -> mode = {
 Type family empty
 ===============
 
-type Empty :: Type = {}
+type Empty :: Type := {}
 
 ---
 

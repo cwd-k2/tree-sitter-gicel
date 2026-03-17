@@ -2,7 +2,7 @@
 Variable pattern
 ===============
 
-f := \x -> x
+f := \x. x
 
 ---
 
@@ -17,7 +17,7 @@ f := \x -> x
 Wildcard pattern
 ===============
 
-f := \_ -> 1
+f := \_. 1
 
 ---
 
@@ -32,7 +32,7 @@ f := \_ -> 1
 Constructor pattern nullary
 ===============
 
-f := \True -> 1
+f := \True. 1
 
 ---
 
@@ -47,7 +47,7 @@ f := \True -> 1
 Constructor pattern with argument
 ===============
 
-f := \(Just x) -> x
+f := \(Just x). x
 
 ---
 
@@ -65,7 +65,7 @@ f := \(Just x) -> x
 Tuple pattern two elements
 ===============
 
-f := \(a, b) -> a
+f := \(a, b). a
 
 ---
 
@@ -82,7 +82,7 @@ f := \(a, b) -> a
 Tuple pattern three elements
 ===============
 
-f := \(a, b, c) -> a
+f := \(a, b, c). a
 
 ---
 
@@ -100,7 +100,7 @@ f := \(a, b, c) -> a
 Record pattern closed
 ===============
 
-f := \{ x = a, y = b } -> a
+f := \{ x: a, y: b }. a
 
 ---
 
@@ -121,7 +121,7 @@ f := \{ x = a, y = b } -> a
 Record pattern open
 ===============
 
-f := \{ x = a | _ } -> a
+f := \{ x: a | _ }. a
 
 ---
 
@@ -140,7 +140,7 @@ f := \{ x = a | _ } -> a
 Unit pattern
 ===============
 
-f := \() -> 1
+f := \(). 1
 
 ---
 
@@ -155,7 +155,7 @@ f := \() -> 1
 Integer literal pattern
 ===============
 
-f := \0 -> True
+f := \0. True
 
 ---
 
@@ -170,7 +170,7 @@ f := \0 -> True
 String literal pattern
 ===============
 
-f := \"hello" -> True
+f := \"hello". True
 
 ---
 
@@ -185,7 +185,7 @@ f := \"hello" -> True
 Rune literal pattern
 ===============
 
-f := \'a' -> True
+f := \'a'. True
 
 ---
 
@@ -200,7 +200,7 @@ f := \'a' -> True
 Parenthesized pattern
 ===============
 
-f := \(x) -> x
+f := \(x). x
 
 ---
 
