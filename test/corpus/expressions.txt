@@ -727,6 +727,88 @@ main := fix \self n. case n { 0 -> 1; _ -> n }
             body: (identifier)))))))
 
 ===============
+Qualified variable
+===============
+
+f := M.lookup
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (qualified_variable
+      module: (constructor)
+      name: (identifier))))
+
+===============
+Qualified constructor
+===============
+
+f := M.Just
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (qualified_constructor
+      module: (constructor)
+      name: (constructor))))
+
+===============
+Qualified variable in application
+===============
+
+f := M.lookup key table
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (qualified_variable
+          module: (constructor)
+          name: (identifier))
+        (identifier))
+      (identifier))))
+
+===============
+Qualified constructor in application
+===============
+
+f := M.Just x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (qualified_constructor
+        module: (constructor)
+        name: (constructor))
+      (identifier))))
+
+===============
+Dot with spaces is composition not qualified
+===============
+
+f := M . x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (infix_expression
+      (constructor)
+      operator: (operator)
+      (identifier))))
+
+===============
 Lambda as nested application argument
 ===============
 

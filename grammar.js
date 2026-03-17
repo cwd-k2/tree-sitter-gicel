@@ -31,10 +31,16 @@ module.exports = grammar({
   // and the parser expects it (case_expression body). This prevents
   // LALR state merging that would otherwise conflate the case body
   // `{` with the block_expression/record_expression `{`.
+  //
+  // _qualified_dot is emitted when `.` appears with no whitespace
+  // on either side (adjacent to both preceding constructor and
+  // following identifier). This mirrors GICEL's tokensAdjacent()
+  // semantics for qualified references: M.x vs M . x (composition).
   externals: ($) => [
     $._newline,
     $.block_comment,
     $._case_brace,
+    $._qualified_dot,
   ],
 
   extras: ($) => [/[ \t\r\n]/, $.line_comment, $.block_comment],
@@ -94,7 +100,36 @@ module.exports = grammar({
     //  Declarations
     // ════════════════════════════════════════════════════════════════════
 
-    import_declaration: ($) => seq("import", $.module_name),
+    // prec.right: after `import ModuleName`, prefer consuming `as`/`(`
+    // as part of this declaration rather than starting a new one.
+    import_declaration: ($) =>
+      prec.right(seq(
+        "import",
+        $.module_name,
+        optional(choice($.import_alias, $.import_list)),
+      )),
+
+    import_alias: ($) => seq("as", field("alias", $.constructor)),
+
+    import_list: ($) =>
+      seq("(", sep1($.import_item, ","), ")"),
+
+    import_item: ($) =>
+      choice(
+        $.identifier,
+        $.parenthesized_operator,
+        seq($.constructor, optional($.import_members)),
+      ),
+
+    import_members: ($) =>
+      seq(
+        "(",
+        choice(
+          "..",
+          sep1($.constructor, ","),
+        ),
+        ")",
+      ),
 
     module_name: ($) => sep1($.constructor, "."),
 
@@ -236,6 +271,7 @@ module.exports = grammar({
       choice(
         $.identifier,
         $.constructor,
+        $.qualified_type_constructor,
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
@@ -330,6 +366,7 @@ module.exports = grammar({
         // Atoms directly in supertype:
         $.identifier,
         $.constructor,
+        $.qualified_type_constructor,
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
@@ -350,12 +387,21 @@ module.exports = grammar({
 
     function_type: ($) => prec.right(2, seq($._type, "->", $._type)),
 
+    // Qualified type constructor: M.Type (adjacency-sensitive, via external scanner).
+    qualified_type_constructor: ($) =>
+      seq(
+        field("module", $.constructor),
+        $._qualified_dot,
+        field("name", alias(token.immediate(/[A-Z][a-zA-Z0-9_']*/), $.constructor)),
+      ),
+
     // Type arguments for ADT constructors and instance heads.
     // These are "atomic" types only (not application/function/qualified).
     _type_arg: ($) =>
       choice(
         $.identifier,
         $.constructor,
+        $.qualified_type_constructor,
         $.wildcard,
         $.unit_type,
         $.parenthesized_type,
@@ -453,6 +499,8 @@ module.exports = grammar({
       choice(
         $.identifier,
         $.constructor,
+        $.qualified_variable,
+        $.qualified_constructor,
         $.integer,
         $.string,
         $.rune,
@@ -516,10 +564,28 @@ module.exports = grammar({
     application: ($) =>
       prec.left(10, seq($._application_or_atom, $._atom)),
 
+    // Qualified references: M.x (variable), M.Just (constructor).
+    // Adjacency-sensitive via _qualified_dot (external scanner).
+    qualified_variable: ($) =>
+      seq(
+        field("module", $.constructor),
+        $._qualified_dot,
+        field("name", alias(token.immediate(/[a-z][a-zA-Z0-9_']*/), $.identifier)),
+      ),
+
+    qualified_constructor: ($) =>
+      seq(
+        field("module", $.constructor),
+        $._qualified_dot,
+        field("name", alias(token.immediate(/[A-Z][a-zA-Z0-9_']*/), $.constructor)),
+      ),
+
     _atom: ($) =>
       choice(
         $.identifier,
         $.constructor,
+        $.qualified_variable,
+        $.qualified_constructor,
         $.integer,
         $.string,
         $.rune,

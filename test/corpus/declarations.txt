@@ -46,6 +46,136 @@ import Std.Str
       (constructor))))
 
 ===============
+Qualified import
+===============
+
+import Data.Map as M
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor)
+      (constructor))
+    (import_alias
+      alias: (constructor))))
+
+===============
+Selective import with values
+===============
+
+import Prelude (map, filter)
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (identifier))
+      (import_item
+        (identifier)))))
+
+===============
+Selective import with operator
+===============
+
+import Prelude ((+), (.))
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (parenthesized_operator
+          (operator)))
+      (import_item
+        (parenthesized_operator
+          (operator))))))
+
+===============
+Selective import with type bare
+===============
+
+import Prelude (Maybe, Bool)
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (constructor))
+      (import_item
+        (constructor)))))
+
+===============
+Selective import with all subs
+===============
+
+import Prelude (Maybe(..))
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (constructor)
+        (import_members)))))
+
+===============
+Selective import with specific subs
+===============
+
+import Prelude (Maybe(Just, Nothing))
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (constructor)
+        (import_members
+          (constructor)
+          (constructor))))))
+
+===============
+Selective import mixed
+===============
+
+import Prelude (map, Maybe(..), (+))
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (identifier))
+      (import_item
+        (constructor)
+        (import_members))
+      (import_item
+        (parenthesized_operator
+          (operator))))))
+
+===============
 Simple ADT enumeration
 ===============
 

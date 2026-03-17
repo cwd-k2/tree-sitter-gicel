@@ -277,6 +277,40 @@ f :: { h : Handle @Linear | r }
       (identifier))))
 
 ===============
+Qualified type constructor
+===============
+
+f :: M.Type -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (qualified_type_constructor
+        module: (constructor)
+        name: (constructor))
+      (constructor))))
+
+===============
+Qualified type constructor in application
+===============
+
+f :: M.Maybe Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (type_application
+      constructor: (qualified_type_constructor
+        module: (constructor)
+        name: (constructor))
+      argument: (constructor))))
+
+===============
 Row field with multiple fields and multiplicity
 ===============
 

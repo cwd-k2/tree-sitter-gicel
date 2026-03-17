@@ -31,6 +31,7 @@ enum TokenType {
   TOKEN_NEWLINE,
   TOKEN_BLOCK_COMMENT,
   TOKEN_CASE_BRACE,
+  TOKEN_QUALIFIED_DOT,
 };
 
 /* -- Lifecycle ------------------------------------------------------------ */
@@ -105,6 +106,25 @@ static bool scan_block_comment_body(TSLexer *lexer) {
 bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
                                              const bool *valid_symbols) {
   (void)payload;
+
+  /* -- Qualified dot (adjacency-sensitive) -------------------------------- */
+  /* Must check BEFORE consuming any whitespace.  _qualified_dot is emitted
+     when '.' immediately follows the previous token (no space before) AND
+     is immediately followed by a letter (no space after).  This mirrors
+     GICEL's tokensAdjacent() semantics: M.x is a qualified reference,
+     M . x is function composition. */
+  if (lexer->lookahead == '.' && valid_symbols[TOKEN_QUALIFIED_DOT]) {
+    lexer->mark_end(lexer);
+    lexer->advance(lexer, false);
+    if ((lexer->lookahead >= 'a' && lexer->lookahead <= 'z') ||
+        (lexer->lookahead >= 'A' && lexer->lookahead <= 'Z')) {
+      lexer->mark_end(lexer);
+      lexer->result_symbol = TOKEN_QUALIFIED_DOT;
+      return true;
+    }
+    /* Not followed by a letter — revert to mark_end (before '.') */
+    return false;
+  }
 
   skip_horizontal_ws(lexer);
 
