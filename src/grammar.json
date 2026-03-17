@@ -517,6 +517,15 @@
               {
                 "type": "SYMBOL",
                 "name": "identifier"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "STRING",
+                  "value": "."
+                },
+                "named": true,
+                "value": "operator"
               }
             ]
           }
@@ -811,15 +820,53 @@
               "value": "("
             },
             {
-              "type": "SYMBOL",
-              "name": "constructor"
-            },
-            {
-              "type": "REPEAT",
-              "content": {
-                "type": "SYMBOL",
-                "name": "_constraint_arg"
-              }
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "constructor"
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "_constraint_arg"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "constructor"
+                          },
+                          {
+                            "type": "REPEAT",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_constraint_arg"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
             },
             {
               "type": "STRING",
@@ -1193,8 +1240,22 @@
           "value": "("
         },
         {
-          "type": "SYMBOL",
-          "name": "operator"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "operator"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "STRING",
+                "value": "."
+              },
+              "named": true,
+              "value": "operator"
+            }
+          ]
         },
         {
           "type": "STRING",
@@ -2012,6 +2073,10 @@
         {
           "type": "SYMBOL",
           "name": "left_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "lambda_expression"
         }
       ]
     },
@@ -2347,6 +2412,10 @@
         {
           "type": "SYMBOL",
           "name": "left_section"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "lambda_expression"
         }
       ]
     },
@@ -3259,6 +3328,10 @@
     [
       "_simple_expression",
       "left_section"
+    ],
+    [
+      "_expression",
+      "_atom"
     ]
   ],
   "precedences": [],

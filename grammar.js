@@ -66,6 +66,8 @@ module.exports = grammar({
     // Left operator section vs infix: after `( app-or-atom`, seeing `op`
     // could reduce to _simple_expression (for infix) or continue left_section.
     [$._simple_expression, $.left_section],
+    // Lambda as atom: lambda_expression appears in both _expression and _atom.
+    [$._expression, $._atom],
   ],
 
   rules: {
@@ -175,7 +177,7 @@ module.exports = grammar({
       seq(
         field("fixity", choice("infixl", "infixr", "infixn")),
         field("precedence", $.integer),
-        field("operator", choice($.operator, $.identifier)),
+        field("operator", choice($.operator, $.identifier, alias(".", $.operator))),
       ),
 
     // --- class ---
@@ -227,7 +229,7 @@ module.exports = grammar({
     _constraint_head: ($) =>
       choice(
         seq($.constructor, repeat($._constraint_arg)),
-        seq("(", $.constructor, repeat($._constraint_arg), ")"),
+        seq("(", sep1(seq($.constructor, repeat($._constraint_arg)), ","), ")"),
       ),
 
     _constraint_arg: ($) =>
@@ -295,7 +297,7 @@ module.exports = grammar({
         field("value", $._expression),
       ),
 
-    parenthesized_operator: ($) => seq("(", $.operator, ")"),
+    parenthesized_operator: ($) => seq("(", choice($.operator, alias(".", $.operator)), ")"),
 
     // ════════════════════════════════════════════════════════════════════
     //  Type binders & kinds
@@ -463,6 +465,7 @@ module.exports = grammar({
         $.operator_section,
         $.right_section,
         $.left_section,
+        $.lambda_expression,
       ),
 
     case_branch: ($) =>
@@ -532,6 +535,7 @@ module.exports = grammar({
         $.operator_section,
         $.right_section,
         $.left_section,
+        $.lambda_expression,
       ),
 
     unit_expression: ($) => prec(2, seq("(", ")")),

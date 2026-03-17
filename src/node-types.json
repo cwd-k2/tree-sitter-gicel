@@ -329,6 +329,10 @@
           "named": true
         },
         {
+          "type": "lambda_expression",
+          "named": true
+        },
+        {
           "type": "left_section",
           "named": true
         },
@@ -689,6 +693,10 @@
           },
           {
             "type": "integer",
+            "named": true
+          },
+          {
+            "type": "lambda_expression",
             "named": true
           },
           {
@@ -1478,6 +1486,10 @@
             "named": true
           },
           {
+            "type": "lambda_expression",
+            "named": true
+          },
+          {
             "type": "left_section",
             "named": true
           },
@@ -1811,6 +1823,10 @@
         },
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "lambda_expression",
           "named": true
         },
         {
@@ -2184,6 +2200,10 @@
           "named": true
         },
         {
+          "type": "lambda_expression",
+          "named": true
+        },
+        {
           "type": "left_section",
           "named": true
         },
@@ -2316,6 +2336,10 @@
         },
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "lambda_expression",
           "named": true
         },
         {
