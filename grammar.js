@@ -436,7 +436,7 @@ module.exports = grammar({
         1,
         seq(
           $._scrutinee,
-          field("operator", choice($.operator, $.backtick_operator)),
+          field("operator", choice($.operator, $.backtick_operator, alias(".", $.operator))),
           $._expression,
         ),
       ),
@@ -501,7 +501,7 @@ module.exports = grammar({
         1,
         seq(
           $._simple_expression,
-          field("operator", choice($.operator, $.backtick_operator)),
+          field("operator", choice($.operator, $.backtick_operator, alias(".", $.operator))),
           $._expression,
         ),
       ),

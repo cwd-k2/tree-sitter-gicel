@@ -1899,6 +1899,15 @@
                 {
                   "type": "SYMBOL",
                   "name": "backtick_operator"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "."
+                  },
+                  "named": true,
+                  "value": "operator"
                 }
               ]
             }
@@ -2201,6 +2210,15 @@
                 {
                   "type": "SYMBOL",
                   "name": "backtick_operator"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "."
+                  },
+                  "named": true,
+                  "value": "operator"
                 }
               ]
             }
