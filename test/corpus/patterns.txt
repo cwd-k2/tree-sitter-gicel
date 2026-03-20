@@ -275,3 +275,98 @@ f := do { (Just x) <- g; pure x }
       (application
         (identifier)
         (identifier)))))
+
+===============
+List pattern empty
+===============
+
+f := case xs { [] -> 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (list_pattern)
+        body: (integer)))))
+
+===============
+List pattern with elements
+===============
+
+f := case xs { [a, b, c] -> a }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (list_pattern
+          (identifier)
+          (identifier)
+          (identifier))
+        body: (identifier)))))
+
+===============
+Qualified constructor pattern bare
+===============
+
+f := case x { M.Nothing -> 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (qualified_constructor
+          module: (constructor)
+          name: (constructor))
+        body: (integer)))))
+
+===============
+Qualified constructor pattern with arguments
+===============
+
+f := case x { (M.Just y) -> y }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (parenthesized_pattern
+          (constructor_pattern
+            (qualified_constructor
+              module: (constructor)
+              name: (constructor))
+            (identifier)))
+        body: (identifier)))))
+
+===============
+Double literal pattern
+===============
+
+f := case x { 3.14 -> True }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (double)
+        body: (constructor)))))

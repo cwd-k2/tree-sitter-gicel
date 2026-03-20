@@ -159,3 +159,68 @@ x := '\\'
     name: (identifier)
     value: (rune
       (escape_sequence))))
+
+===============
+Integer with underscore separators
+===============
+
+x := 100_000
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (integer)))
+
+===============
+Double literal decimal
+===============
+
+x := 3.14
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (double)))
+
+===============
+Double literal exponent only
+===============
+
+x := 1e10
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (double)))
+
+===============
+Double literal with decimal and exponent
+===============
+
+x := 1.05e+10
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (double)))
+
+===============
+Double literal with underscores
+===============
+
+x := 2_000.5e-3
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (double)))

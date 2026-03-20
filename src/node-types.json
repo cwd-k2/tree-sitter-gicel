@@ -66,6 +66,10 @@
         "named": true
       },
       {
+        "type": "double",
+        "named": true
+      },
+      {
         "type": "identifier",
         "named": true
       },
@@ -160,6 +164,10 @@
         "named": true
       },
       {
+        "type": "double",
+        "named": true
+      },
+      {
         "type": "identifier",
         "named": true
       },
@@ -168,7 +176,15 @@
         "named": true
       },
       {
+        "type": "list_pattern",
+        "named": true
+      },
+      {
         "type": "parenthesized_pattern",
+        "named": true
+      },
+      {
+        "type": "qualified_constructor",
         "named": true
       },
       {
@@ -333,7 +349,19 @@
           "named": true
         },
         {
+          "type": "case_expression",
+          "named": true
+        },
+        {
           "type": "constructor",
+          "named": true
+        },
+        {
+          "type": "do_expression",
+          "named": true
+        },
+        {
+          "type": "double",
           "named": true
         },
         {
@@ -712,7 +740,19 @@
             "named": true
           },
           {
+            "type": "case_expression",
+            "named": true
+          },
+          {
             "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "do_expression",
+            "named": true
+          },
+          {
+            "type": "double",
             "named": true
           },
           {
@@ -899,6 +939,10 @@
           "named": true
         },
         {
+          "type": "double",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -907,7 +951,15 @@
           "named": true
         },
         {
+          "type": "list_pattern",
+          "named": true
+        },
+        {
           "type": "parenthesized_pattern",
+          "named": true
+        },
+        {
+          "type": "qualified_constructor",
           "named": true
         },
         {
@@ -1547,6 +1599,10 @@
             "named": true
           },
           {
+            "type": "double",
+            "named": true
+          },
+          {
             "type": "identifier",
             "named": true
           },
@@ -1555,7 +1611,15 @@
             "named": true
           },
           {
+            "type": "list_pattern",
+            "named": true
+          },
+          {
             "type": "parenthesized_pattern",
+            "named": true
+          },
+          {
+            "type": "qualified_constructor",
             "named": true
           },
           {
@@ -1603,7 +1667,19 @@
             "named": true
           },
           {
+            "type": "case_expression",
+            "named": true
+          },
+          {
             "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "do_expression",
+            "named": true
+          },
+          {
+            "type": "double",
             "named": true
           },
           {
@@ -1728,6 +1804,21 @@
       "types": [
         {
           "type": "_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "list_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "_pattern",
           "named": true
         }
       ]
@@ -1955,7 +2046,19 @@
           "named": true
         },
         {
+          "type": "case_expression",
+          "named": true
+        },
+        {
           "type": "constructor",
+          "named": true
+        },
+        {
+          "type": "do_expression",
+          "named": true
+        },
+        {
+          "type": "double",
           "named": true
         },
         {
@@ -2419,6 +2522,18 @@
           "named": true
         },
         {
+          "type": "case_expression",
+          "named": true
+        },
+        {
+          "type": "do_expression",
+          "named": true
+        },
+        {
+          "type": "double",
+          "named": true
+        },
+        {
           "type": "infix_expression",
           "named": true
         },
@@ -2562,7 +2677,19 @@
           "named": true
         },
         {
+          "type": "case_expression",
+          "named": true
+        },
+        {
           "type": "constructor",
+          "named": true
+        },
+        {
+          "type": "do_expression",
+          "named": true
+        },
+        {
+          "type": "double",
           "named": true
         },
         {
@@ -2948,6 +3075,10 @@
   {
     "type": "do",
     "named": false
+  },
+  {
+    "type": "double",
+    "named": true
   },
   {
     "type": "escape_sequence",

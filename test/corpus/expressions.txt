@@ -847,3 +847,79 @@ main := \f. fix \self s. case s { LNil -> z; LCons x t -> f x (self (t ())) }
                       (application
                         (identifier)
                         (unit_expression)))))))))))))
+
+===============
+Do expression as application argument
+===============
+
+f := thunk do { x <- pure 42; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (identifier)
+      (do_expression
+        (bind_statement
+          pattern: (identifier)
+          value: (application
+            (identifier)
+            (integer)))
+        (application
+          (identifier)
+          (identifier))))))
+
+===============
+Case expression as application argument
+===============
+
+f := map (\x. case x { Just y -> y; Nothing -> 0 }) xs
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (application
+        (identifier)
+        (parenthesized_expression
+          (lambda_expression
+            pattern: (identifier)
+            body: (case_expression
+              scrutinee: (identifier)
+              (case_branch
+                pattern: (constructor_pattern
+                  (constructor)
+                  (identifier))
+                body: (identifier))
+              (case_branch
+                pattern: (constructor)
+                body: (integer))))))
+      (identifier))))
+
+===============
+Nested do as atom in do
+===============
+
+f := do { x <- thunk do { pure 1 }; force x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (identifier)
+        value: (application
+          (identifier)
+          (do_expression
+            (application
+              (identifier)
+              (integer)))))
+      (application
+        (identifier)
+        (identifier)))))

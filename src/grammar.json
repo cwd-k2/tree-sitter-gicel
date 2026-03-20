@@ -2246,6 +2246,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "double"
+        },
+        {
+          "type": "SYMBOL",
           "name": "string"
         },
         {
@@ -2291,6 +2295,14 @@
         {
           "type": "SYMBOL",
           "name": "lambda_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "do_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "case_expression"
         }
       ]
     },
@@ -2647,6 +2659,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "double"
+        },
+        {
+          "type": "SYMBOL",
           "name": "string"
         },
         {
@@ -2704,6 +2720,14 @@
         {
           "type": "SYMBOL",
           "name": "lambda_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "do_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "case_expression"
         }
       ]
     },
@@ -3172,8 +3196,17 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "constructor"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "constructor"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "qualified_constructor"
+            }
+          ]
         },
         {
           "type": "REPEAT1",
@@ -3201,7 +3234,15 @@
         },
         {
           "type": "SYMBOL",
+          "name": "qualified_constructor"
+        },
+        {
+          "type": "SYMBOL",
           "name": "integer"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "double"
         },
         {
           "type": "SYMBOL",
@@ -3226,6 +3267,10 @@
         {
           "type": "SYMBOL",
           "name": "record_pattern"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "list_pattern"
         }
       ]
     },
@@ -3393,6 +3438,52 @@
         }
       ]
     },
+    "list_pattern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_pattern"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "_pattern"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
     "identifier": {
       "type": "PATTERN",
       "value": "[a-z][a-zA-Z0-9_']*|_[a-zA-Z0-9_']+"
@@ -3478,7 +3569,23 @@
     },
     "integer": {
       "type": "PATTERN",
-      "value": "[0-9]+"
+      "value": "[0-9](_?[0-9])*"
+    },
+    "double": {
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "[0-9](_?[0-9])*\\.[0-9](_?[0-9])*([eE][+-]?[0-9](_?[0-9])*)?"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[0-9](_?[0-9])*[eE][+-]?[0-9](_?[0-9])*"
+          }
+        ]
+      }
     },
     "wildcard": {
       "type": "STRING",
@@ -3620,6 +3727,10 @@
     [
       "_expression",
       "_atom"
+    ],
+    [
+      "list_expression",
+      "list_pattern"
     ]
   ],
   "precedences": [],

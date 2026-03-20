@@ -72,8 +72,10 @@ module.exports = grammar({
     // Left operator section vs infix: after `( app-or-atom`, seeing `op`
     // could reduce to _simple_expression (for infix) or continue left_section.
     [$._simple_expression, $.left_section],
-    // Lambda as atom: lambda_expression appears in both _expression and _atom.
+    // Lambda/do/case as atom: these appear in both _expression and _atom.
     [$._expression, $._atom],
+    // List expression vs list pattern in ambiguous contexts (e.g., do-bind).
+    [$.list_expression, $.list_pattern],
   ],
 
   rules: {
@@ -502,6 +504,7 @@ module.exports = grammar({
         $.qualified_variable,
         $.qualified_constructor,
         $.integer,
+        $.double,
         $.string,
         $.rune,
         $.unit_expression,
@@ -514,6 +517,8 @@ module.exports = grammar({
         $.right_section,
         $.left_section,
         $.lambda_expression,
+        $.do_expression,
+        $.case_expression,
       ),
 
     case_branch: ($) =>
@@ -587,6 +592,7 @@ module.exports = grammar({
         $.qualified_variable,
         $.qualified_constructor,
         $.integer,
+        $.double,
         $.string,
         $.rune,
         $.unit_expression,
@@ -602,6 +608,8 @@ module.exports = grammar({
         $.right_section,
         $.left_section,
         $.lambda_expression,
+        $.do_expression,
+        $.case_expression,
       ),
 
     unit_expression: ($) => prec(2, seq("(", ")")),
@@ -681,20 +689,23 @@ module.exports = grammar({
     _pattern: ($) => choice($.constructor_pattern, $._simple_pattern),
 
     constructor_pattern: ($) =>
-      seq($.constructor, repeat1($._simple_pattern)),
+      seq(choice($.constructor, $.qualified_constructor), repeat1($._simple_pattern)),
 
     _simple_pattern: ($) =>
       choice(
         $.identifier,
         $.wildcard,
         $.constructor,
+        $.qualified_constructor,
         $.integer,
+        $.double,
         $.string,
         $.rune,
         $.unit_pattern,
         $.parenthesized_pattern,
         $.tuple_pattern,
         $.record_pattern,
+        $.list_pattern,
       ),
 
     unit_pattern: ($) => prec(2, seq("(", ")")),
@@ -714,6 +725,9 @@ module.exports = grammar({
 
     field_pattern: ($) =>
       seq(field("label", $.identifier), ":", field("value", $._pattern)),
+
+    list_pattern: ($) =>
+      seq("[", optional(sep1($._pattern, ",")), "]"),
 
     // ════════════════════════════════════════════════════════════════════
     //  Terminals
@@ -745,7 +759,17 @@ module.exports = grammar({
         op,
       ));
     },
-    integer: (_) => /[0-9]+/,
+    integer: (_) => /[0-9](_?[0-9])*/,
+
+    // Double literal: decimal point and/or exponent, with optional underscore separators.
+    // Matches: 3.14, 1e10, 1.05e+10, 2_000.5e-3
+    // The decimal-point form requires a digit after `.` to avoid ambiguity with
+    // the composition operator (infixr 9).
+    double: (_) => token(choice(
+      /[0-9](_?[0-9])*\.[0-9](_?[0-9])*([eE][+-]?[0-9](_?[0-9])*)?/,
+      /[0-9](_?[0-9])*[eE][+-]?[0-9](_?[0-9])*/,
+    )),
+
     wildcard: (_) => "_",
 
     string: ($) =>
