@@ -1,4 +1,4 @@
-; GICEL highlight queries for tree-sitter
+; GICEL highlight queries for tree-sitter (unified syntax)
 
 ; ── Keywords ────────────────────────────────────────────────────────
 [
@@ -6,8 +6,7 @@
   "data"
   "do"
   "type"
-  "class"
-  "instance"
+  "impl"
   "import"
   "infixl"
   "infixr"
@@ -21,10 +20,9 @@
 
 ; ── Declarations ───────────────────────────────────────────────────
 (data_declaration name: (constructor) @type.definition)
-(type_alias_declaration name: (constructor) @type.definition)
-(type_family_declaration name: (constructor) @type.definition)
-(class_declaration name: (constructor) @type.definition)
-(instance_declaration class: (constructor) @type)
+(type_alias name: (constructor) @type.definition)
+(type_family name: (constructor) @type.definition)
+(impl_declaration class: (constructor) @type)
 
 (type_annotation name: (identifier) @function)
 (type_annotation name: (parenthesized_operator (operator) @function))
@@ -43,12 +41,14 @@
 (fixity_declaration operator: (operator) @operator)
 (fixity_declaration operator: (identifier) @function)
 
-; ── Type families ─────────────────────────────────────────────────
-(type_family_equation name: (constructor) @type)
+; ── Associated types ─────────────────────────────────────────────
 (assoc_type_signature name: (constructor) @type.definition)
 (assoc_data_signature name: (constructor) @type.definition)
 (assoc_type_definition name: (constructor) @type)
 (assoc_data_definition name: (constructor) @type.definition)
+
+; ── Impl name (private instance) ─────────────────────────────────
+(impl_name name: (identifier) @function)
 
 ; ── Imports ─────────────────────────────────────────────────────────
 (import_declaration (module_name (constructor) @module))
@@ -75,12 +75,12 @@
 (let_statement ":=" @keyword.operator)
 
 (type_annotated_expression "::" @punctuation.special)
+(evidence_injection "=>" @keyword.operator)
 
 (field_value label: (identifier) @property)
 (projection_expression ".#" @operator)
 (projection_expression field: (identifier) @property)
 (type_application_expression "@" @operator)
-(multiplicity_annotation "@" @operator)
 
 ; ── Operator sections ─────────────────────────────────────────────
 (operator_section operator: (operator) @operator)
@@ -108,9 +108,9 @@
 (block_comment) @comment
 
 ; ── Punctuation ────────────────────────────────────────────────────
-["->" "=>" "::" ":=" "=:"] @punctuation.special
+["->" "=>" "::" ":=" ":"] @punctuation.special
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
-["," ";" "|" "." ":" "\\"] @punctuation.delimiter
+["," ";" "|" "." "\\" "@"] @punctuation.delimiter
 
 ; ── Operators (general fallback) ───────────────────────────────────
 (operator) @operator

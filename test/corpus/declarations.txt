@@ -186,7 +186,7 @@ data Bool := True | False
 (source_file
   (data_declaration
     name: (constructor)
-    (adt_constructors
+    body: (adt_constructors
       (adt_constructor
         name: (constructor))
       (adt_constructor
@@ -204,7 +204,7 @@ data Maybe a := Just a | Nothing
   (data_declaration
     name: (constructor)
     (identifier)
-    (adt_constructors
+    body: (adt_constructors
       (adt_constructor
         name: (constructor)
         (identifier))
@@ -224,7 +224,7 @@ data Result e a := Ok a | Err e
     name: (constructor)
     (identifier)
     (identifier)
-    (adt_constructors
+    body: (adt_constructors
       (adt_constructor
         name: (constructor)
         (identifier))
@@ -244,7 +244,7 @@ data List a := Cons a (List a) | Nil
   (data_declaration
     name: (constructor)
     (identifier)
-    (adt_constructors
+    body: (adt_constructors
       (adt_constructor
         name: (constructor)
         (identifier)
@@ -269,7 +269,7 @@ data Dict (c : Constraint) := MkDict
     (kinded_variable
       name: (identifier)
       kind: (constructor))
-    (adt_constructors
+    body: (adt_constructors
       (adt_constructor
         name: (constructor)))))
 
@@ -277,9 +277,9 @@ data Dict (c : Constraint) := MkDict
 GADT declaration
 ===============
 
-data Expr a := {
-  LitInt :: Int -> Expr Int;
-  LitBool :: Bool -> Expr Bool
+data Expr := \a. {
+  LitInt: Int -> Expr Int;
+  LitBool: Bool -> Expr Bool
 }
 
 ---
@@ -287,8 +287,8 @@ data Expr a := {
 (source_file
   (data_declaration
     name: (constructor)
-    (identifier)
-    (gadt_body
+    body: (data_brace_body
+      (identifier)
       (gadt_constructor
         name: (constructor)
         type: (function_type
@@ -313,17 +313,18 @@ type Effect r a := Computation r r a
 ---
 
 (source_file
-  (type_alias_declaration
-    name: (constructor)
-    (identifier)
-    (identifier)
-    type: (type_application
-      constructor: (type_application
+  (type_declaration
+    (type_alias
+      name: (constructor)
+      (identifier)
+      (identifier)
+      type: (type_application
         constructor: (type_application
-          constructor: (constructor)
+          constructor: (type_application
+            constructor: (constructor)
+            argument: (identifier))
           argument: (identifier))
-        argument: (identifier))
-      argument: (identifier))))
+        argument: (identifier)))))
 
 ===============
 Fixity left-associative operator
@@ -461,78 +462,32 @@ y := 2
 Type family simple
 ===============
 
-type Elem (c : Type) :: Type := {
-  Elem (List a) =: a;
-  Elem String =: Rune
+type Elem :: Type := \(c: Type). case c {
+  List a => a;
+  String => Rune
 }
 
 ---
 
 (source_file
-  (type_family_declaration
-    name: (constructor)
-    (kinded_variable
-      name: (identifier)
-      kind: (constructor))
-    result: (constructor)
-    (type_family_equation
+  (type_declaration
+    (type_family
       name: (constructor)
-      (parenthesized_type
-        (type_application
-          constructor: (constructor)
-          argument: (identifier)))
-      rhs: (identifier))
-    (type_family_equation
-      name: (constructor)
-      (constructor)
-      rhs: (constructor))))
-
-===============
-Type family with injective result
-===============
-
-type Effects (mode : Type) :: (r : Row) | r =: mode := {
-  Effects ReadOnly =: { get : () -> String }
-}
-
----
-
-(source_file
-  (type_family_declaration
-    name: (constructor)
-    (kinded_variable
-      name: (identifier)
-      kind: (constructor))
-    result: (injective_result
-      (kinded_variable
-        name: (identifier)
-        kind: (constructor))
-      (fundep_list
-        (fundep
-          from: (identifier)
-          to: (identifier))))
-    (type_family_equation
-      name: (constructor)
-      (constructor)
-      rhs: (row_type
-        (row_field
-          label: (identifier)
-          type: (function_type
-            (unit_type)
-            (constructor)))))))
-
-===============
-Type family empty
-===============
-
-type Empty :: Type := {}
-
----
-
-(source_file
-  (type_family_declaration
-    name: (constructor)
-    result: (constructor)))
+      result: (constructor)
+      body: (forall_type
+        (kinded_variable
+          name: (identifier)
+          kind: (constructor))
+        (type_case
+          scrutinee: (identifier)
+          (type_case_branch
+            pattern: (type_application
+              constructor: (constructor)
+              argument: (identifier))
+            body: (identifier))
+          (type_case_branch
+            pattern: (constructor)
+            body: (constructor)))))))
 
 ===============
 Dot operator fixity

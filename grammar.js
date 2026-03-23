@@ -4,6 +4,15 @@
 /**
  * Tree-sitter grammar for GICEL (Go's Indexed Capability Effect Language).
  *
+ * Unified syntax (post-migration):
+ *   - `data` covers ADTs, GADTs, and type classes.
+ *   - `type` covers type aliases and type families.
+ *   - `impl` replaces `instance` for type class instances.
+ *   - Case alternatives use `=>` (not `->`, which is function arrow).
+ *   - `=>` in expressions: evidence injection (`value => expr`).
+ *   - Row field grade annotation: `GradeExpr => Type` (not `@Type`).
+ *   - GADT/class member type signatures use `:` (not `::`).
+ *
  * Design principles (from tree-sitter-haskell pattern):
  *   - _type is a flat supertype: all type forms are direct alternatives.
  *   - type_application is left-recursive through _type with prec.left(10).
@@ -52,19 +61,13 @@ module.exports = grammar({
   inline: ($) => [$._no_brace_atom, $._scrutinee_app_or_atom],
 
   conflicts: ($) => [
-    // class/instance constraint vs class/instance name (both start with constructor).
-    [$._constraint_head, $.instance_declaration],
-    // constraint arg overlaps with type_binder and type_arg.
-    [$._constraint_arg, $._type_binder],
+    // constraint arg overlaps with type_arg.
     [$._constraint_arg, $._type_arg],
-    // Instance head: type_arg repeat can continue or instance is done.
-    [$.instance_declaration],
     // ADT constructor fields: repeat can continue or next | / end.
     [$.adt_constructor],
-    // Instance body vs row_type: both start with {.
-    [$.instance_body, $.row_type],
-    // Class/instance body vs row_type in constraint args.
-    [$.class_declaration, $.row_type],
+    // ADT constructor vs constraint head in data_brace_body:
+    // `data Name := Con (` could be ADT constructor field or constraint arg.
+    [$.adt_constructor, $._constraint_head],
     // Expression atom vs pattern in do-bind / lambda / case.
     [$._atom, $._simple_pattern],
     [$._atom, $.constructor_pattern],
@@ -76,6 +79,15 @@ module.exports = grammar({
     [$._expression, $._atom],
     // List expression vs list pattern in ambiguous contexts (e.g., do-bind).
     [$.list_expression, $.list_pattern],
+    // type_case vs row_type: `case Type { }` — `{}` could be
+    // row_type (argument to case scrutinee) or empty type_case body.
+    [$.type_case, $.row_type],
+    // Parenthesized operator vs operator section: `(.)` in impl body
+    // could be method name or operator section.
+    [$.parenthesized_operator, $._section_op],
+    // impl body vs block_expression: `{ id := expr; ... }` could
+    // be method_definition (in impl_body) or let_statement (in block_expression).
+    [$.method_definition, $.let_statement],
   ],
 
   rules: {
@@ -89,11 +101,9 @@ module.exports = grammar({
       choice(
         $.import_declaration,
         $.data_declaration,
-        $.type_family_declaration,
-        $.type_alias_declaration,
+        $.type_declaration,
         $.fixity_declaration,
-        $.class_declaration,
-        $.instance_declaration,
+        $.impl_declaration,
         $.type_annotation,
         $.value_definition,
       ),
@@ -135,7 +145,15 @@ module.exports = grammar({
 
     module_name: ($) => sep1($.constructor, "."),
 
-    // --- data ---
+    // --- data (unified: ADT, GADT, type class) ---
+    //
+    // ADT shorthand:  data Name params := Con1 | Con2 fields
+    // GADT body:      data Name := \params. { Con: Type; ... }
+    // Type class:     data Name := \params. [Constraint =>] { method: Type; ... }
+    //
+    // The GADT body and type class body are distinguished by member
+    // content (gadt_constructor uses uppercase : type, method_signature
+    // uses lowercase : type). Both share the brace-delimited body form.
 
     data_declaration: ($) =>
       seq(
@@ -143,7 +161,13 @@ module.exports = grammar({
         field("name", $.constructor),
         repeat($._type_binder),
         ":=",
-        choice($.adt_constructors, $.gadt_body),
+        field("body", $._data_body),
+      ),
+
+    _data_body: ($) =>
+      choice(
+        $.adt_constructors,
+        $.data_brace_body,
       ),
 
     adt_constructors: ($) => sep1($.adt_constructor, "|"),
@@ -151,61 +175,64 @@ module.exports = grammar({
     adt_constructor: ($) =>
       seq(field("name", $.constructor), repeat($._type_arg)),
 
-    gadt_body: ($) =>
+    // Brace body: covers GADT constructors AND type class members.
+    // Optionally preceded by `\params.` and/or `Constraint =>`.
+    // Examples:
+    //   data Expr := \a. { LitInt: Int -> Expr Int; ... }
+    //   data Eq := \a. { eq: a -> a -> Bool }
+    //   data Ord := \a. Eq a => { compare: a -> a -> Ordering }
+    data_brace_body: ($) =>
       seq(
+        optional(seq("\\", repeat1($._type_binder), ".")),
+        repeat($.constraint),
         "{",
-        optional(seq(sep1($.gadt_constructor, ";"), optional(";"))),
+        optional(seq(sep1($._data_member, ";"), optional(";"))),
         "}",
       ),
 
-    gadt_constructor: ($) =>
-      seq(field("name", $.constructor), "::", field("type", $._type)),
-
-    // --- type ---
-
-    // type Name params :: Kind := { equations }
-    // type Name params :: (r : Kind) | deps := { equations }
-    type_family_declaration: ($) =>
-      seq(
-        "type",
-        field("name", $.constructor),
-        repeat($._type_binder),
-        "::",
-        field("result", $._type_family_result),
-        ":=",
-        "{",
-        optional(seq(sep1($.type_family_equation, ";"), optional(";"))),
-        "}",
-      ),
-
-    _type_family_result: ($) =>
+    _data_member: ($) =>
       choice(
-        $.injective_result,
-        $._kind,
+        $.gadt_constructor,
+        $.method_signature,
+        $.assoc_type_signature,
+        $.assoc_data_signature,
       ),
 
-    injective_result: ($) =>
-      seq(
-        $.kinded_variable,
-        "|",
-        $.fundep_list,
+    // GADT constructor: uppercase name with `:` type signature.
+    gadt_constructor: ($) =>
+      seq(field("name", $.constructor), ":", field("type", $._type)),
+
+    // --- type (unified: alias and family) ---
+    //
+    // Type alias:  type Name params := TypeExpr
+    // Type family: type Name :: Kind := \params. case param { Pat => Type; ... }
+    //
+    // Distinguished by `::` after the name (family) vs no `::` (alias).
+
+    type_declaration: ($) =>
+      choice(
+        $.type_alias,
+        $.type_family,
       ),
 
-    type_family_equation: ($) =>
-      seq(
-        field("name", $.constructor),
-        repeat($._type_arg),
-        "=:",
-        field("rhs", $._type),
-      ),
-
-    type_alias_declaration: ($) =>
+    type_alias: ($) =>
       seq(
         "type",
         field("name", $.constructor),
         repeat($._type_binder),
         ":=",
         field("type", $._type),
+      ),
+
+    // type Name :: Kind := \params. case param { Pat => Type; ... }
+    type_family: ($) =>
+      seq(
+        "type",
+        field("name", $.constructor),
+        "::",
+        field("result", $._kind),
+        ":=",
+        field("body", $._type),
       ),
 
     // --- fixity ---
@@ -217,47 +244,55 @@ module.exports = grammar({
         field("operator", choice($.operator, $.identifier, alias(".", $.operator))),
       ),
 
-    // --- class ---
+    // --- impl (replaces instance) ---
+    //
+    // impl [Constraint =>] ClassName TypeArg* := { ... }
+    // impl _name :: [Constraint =>] ClassName TypeArg* := Expr
 
-    class_declaration: ($) =>
+    impl_declaration: ($) =>
       seq(
-        "class",
+        "impl",
+        optional($.impl_name),
         repeat($.constraint),
-        field("name", $.constructor),
-        repeat($._type_binder),
-        optional($.functional_dependency),
+        field("class", $.constructor),
+        repeat($._type_arg),
+        ":=",
+        field("body", choice($.impl_body, $._expression)),
+      ),
+
+    // Private/named instance: `_name ::`
+    impl_name: ($) =>
+      seq(field("name", $.identifier), "::"),
+
+    impl_body: ($) =>
+      seq(
         "{",
-        optional(seq(sep1($._class_member, ";"), optional(";"))),
+        optional(seq(sep1($._impl_member, ";"), optional(";"))),
         "}",
       ),
 
-    _class_member: ($) =>
+    _impl_member: ($) =>
       choice(
-        $.method_signature,
-        $.assoc_type_signature,
-        $.assoc_data_signature,
+        $.method_definition,
+        $.assoc_type_definition,
+        $.assoc_data_definition,
       ),
 
-    // type Name params :: Kind (in class body)
-    assoc_type_signature: ($) =>
-      seq("type", field("name", $.constructor), repeat($._type_binder), "::", $._type_family_result),
+    // type Name := TypeExpr (in impl body)
+    assoc_type_definition: ($) =>
+      seq("type", field("name", $.constructor), ":=", field("rhs", $._type)),
 
-    // data Name params :: Kind (in class body)
+    // data Name := Con fields | Con fields (in impl body)
+    assoc_data_definition: ($) =>
+      seq("data", field("name", $.constructor), ":=", $.adt_constructors),
+
+    // Associated type signature in class body: type Name params :: Kind
+    assoc_type_signature: ($) =>
+      seq("type", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
+
+    // Associated data signature in class body: data Name params :: Kind
     assoc_data_signature: ($) =>
       seq("data", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
-
-    // | a =: b, c =: d (after class params or in type family result)
-    functional_dependency: ($) =>
-      seq("|", $.fundep_list),
-
-    fundep_list: ($) => sep1($.fundep, ","),
-
-    fundep: ($) =>
-      seq(
-        field("from", $.identifier),
-        "=:",
-        repeat1(field("to", $.identifier)),
-      ),
 
     // Constraint: ClassName arg1 arg2 ... =>
     constraint: ($) =>
@@ -280,41 +315,9 @@ module.exports = grammar({
         $.row_type,
       ),
 
-    // --- instance ---
-
-    instance_declaration: ($) =>
-      seq(
-        "instance",
-        repeat($.constraint),
-        field("class", $.constructor),
-        repeat($._type_arg),
-        optional($.instance_body),
-      ),
-
-    instance_body: ($) =>
-      seq(
-        "{",
-        optional(seq(sep1($._instance_member, ";"), optional(";"))),
-        "}",
-      ),
-
-    _instance_member: ($) =>
-      choice(
-        $.method_definition,
-        $.assoc_type_definition,
-        $.assoc_data_definition,
-      ),
-
-    // type Name TypePattern* =: TypeExpr (in instance body)
-    assoc_type_definition: ($) =>
-      seq("type", field("name", $.constructor), repeat($._type_arg), "=:", field("rhs", $._type)),
-
-    // data Name TypePattern* =: Con fields | Con fields (in instance body)
-    assoc_data_definition: ($) =>
-      seq("data", field("name", $.constructor), repeat($._type_arg), "=:", $.adt_constructors),
-
+    // Method signature in class body: name : Type (uses `:` not `::`)
     method_signature: ($) =>
-      seq(field("name", choice($.identifier, $.parenthesized_operator)), "::", field("type", $._type)),
+      seq(field("name", choice($.identifier, $.parenthesized_operator)), ":", field("type", $._type)),
 
     method_definition: ($) =>
       seq(field("name", choice($.identifier, $.parenthesized_operator)), ":=", field("value", $._expression)),
@@ -365,6 +368,7 @@ module.exports = grammar({
         $.qualified_type,
         $.function_type,
         $.type_application,
+        $.type_case,
         // Atoms directly in supertype:
         $.identifier,
         $.constructor,
@@ -388,6 +392,20 @@ module.exports = grammar({
       )),
 
     function_type: ($) => prec.right(2, seq($._type, "->", $._type)),
+
+    // Type-level case expression (used in type families).
+    // `case scrutinee { Pattern => Type; ... }`
+    type_case: ($) =>
+      seq(
+        "case",
+        field("scrutinee", $._type),
+        "{",
+        optional(seq(sep1($.type_case_branch, ";"), optional(";"))),
+        "}",
+      ),
+
+    type_case_branch: ($) =>
+      seq(field("pattern", $._type), "=>", field("body", $._type)),
 
     // Qualified type constructor: M.Type (adjacency-sensitive, via external scanner).
     qualified_type_constructor: ($) =>
@@ -429,10 +447,12 @@ module.exports = grammar({
         "}",
       ),
 
+    // Row field: label : Type
+    // Grade annotations parse as qualified_type within the type position:
+    //   `h: Linear => Handle`  ->  row_field(h, qualified_type(Linear, Handle))
+    // This matches the surface syntax where grade annotations use `=>`.
     row_field: ($) =>
-      seq(field("label", $.identifier), ":", field("type", $._type), optional($.multiplicity_annotation)),
-
-    multiplicity_annotation: ($) => seq("@", $._type_arg),
+      seq(field("label", $.identifier), ":", field("type", $._type)),
 
     // ════════════════════════════════════════════════════════════════════
     //  Expressions
@@ -444,6 +464,7 @@ module.exports = grammar({
         $.case_expression,
         $.do_expression,
         $.type_annotated_expression,
+        $.evidence_injection,
         $._simple_expression,
       ),
 
@@ -451,6 +472,14 @@ module.exports = grammar({
     // Lowest precedence among expressions (below infix).
     type_annotated_expression: ($) =>
       prec.right(-1, seq($._simple_expression, "::", $._type)),
+
+    // Evidence injection: `value => expr`
+    // Right-associative, binds below annotation (::) and above nothing.
+    // Uses prec -1 (same as type_annotated_expression) — both are
+    // lowest-precedence expression forms. Ambiguity with type annotation
+    // is resolved by the separator token (=> vs ::).
+    evidence_injection: ($) =>
+      prec.right(-1, seq($._simple_expression, "=>", $._expression)),
 
     lambda_expression: ($) =>
       prec.right(
@@ -521,8 +550,9 @@ module.exports = grammar({
         $.case_expression,
       ),
 
+    // Case alternatives use `=>` (not `->`).
     case_branch: ($) =>
-      seq(field("pattern", $._pattern), "->", field("body", $._expression)),
+      seq(field("pattern", $._pattern), "=>", field("body", $._expression)),
 
     do_expression: ($) =>
       seq(
@@ -618,9 +648,9 @@ module.exports = grammar({
       seq("(", $._expression, optional(seq("::", $._type)), ")"),
 
     // Operator sections — expression-level counterpart of (op) in declarations.
-    // (op)      → operator as first-class value
-    // (op expr) → right section: \x -> x op expr
-    // (expr op) → left section:  \x -> expr op x
+    // (op)      -> operator as first-class value
+    // (op expr) -> right section: \x. x op expr
+    // (expr op) -> left section:  \x. expr op x
     //
     // _section_op includes `.` (infixr 9, function composition) which is
     // excluded from the operator regex to avoid conflicts with quantifier/lambda/module

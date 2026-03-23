@@ -434,7 +434,7 @@ f := Nothing
 Case expression simple
 ===============
 
-f := case x { True -> 1; False -> 0 }
+f := case x { True => 1; False => 0 }
 
 ---
 
@@ -454,7 +454,7 @@ f := case x { True -> 1; False -> 0 }
 Case expression with application scrutinee
 ===============
 
-f := case g x { Just y -> y; Nothing -> 0 }
+f := case g x { Just y => y; Nothing => 0 }
 
 ---
 
@@ -705,7 +705,7 @@ f := (1 + 2)
 Lambda as application argument
 ===============
 
-main := fix \self n. case n { 0 -> 1; _ -> n }
+main := fix \self n. case n { 0 => 1; _ => n }
 
 ---
 
@@ -812,7 +812,7 @@ f := M . x
 Lambda as nested application argument
 ===============
 
-main := \f. fix \self s. case s { LNil -> z; LCons x t -> f x (self (t ())) }
+main := \f. fix \self s. case s { LNil => z; LCons x t => f x (self (t ())) }
 
 ---
 
@@ -875,7 +875,7 @@ f := thunk do { x <- pure 42; pure x }
 Case expression as application argument
 ===============
 
-f := map (\x. case x { Just y -> y; Nothing -> 0 }) xs
+f := map (\x. case x { Just y => y; Nothing => 0 }) xs
 
 ---
 
@@ -923,3 +923,22 @@ f := do { x <- thunk do { pure 1 }; force x }
       (application
         (identifier)
         (identifier)))))
+
+===============
+Evidence injection simple
+===============
+
+f := _myEq => eq 1 2
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (evidence_injection
+      (identifier)
+      (application
+        (application
+          (identifier)
+          (integer))
+        (integer)))))

@@ -258,10 +258,10 @@ f :: { | r }
       (identifier))))
 
 ===============
-Row field with multiplicity annotation
+Row field with grade annotation
 ===============
 
-f :: { h : Handle @Linear | r }
+f :: { h : Linear => Handle | r }
 
 ---
 
@@ -271,8 +271,8 @@ f :: { h : Handle @Linear | r }
     type: (row_type
       (row_field
         label: (identifier)
-        type: (constructor)
-        (multiplicity_annotation
+        type: (qualified_type
+          (constructor)
           (constructor)))
       (identifier))))
 
@@ -311,10 +311,10 @@ f :: M.Maybe Int
       argument: (constructor))))
 
 ===============
-Row field with multiple fields and multiplicity
+Row field with multiple fields and grade
 ===============
 
-f :: { x : Int @Affine, y : Bool }
+f :: { x : Affine => Int, y : Bool }
 
 ---
 
@@ -324,8 +324,8 @@ f :: { x : Int @Affine, y : Bool }
     type: (row_type
       (row_field
         label: (identifier)
-        type: (constructor)
-        (multiplicity_annotation
+        type: (qualified_type
+          (constructor)
           (constructor)))
       (row_field
         label: (identifier)

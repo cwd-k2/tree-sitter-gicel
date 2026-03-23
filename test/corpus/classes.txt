@@ -1,157 +1,154 @@
 ===============
-Class declaration simple
+Type class declaration simple
 ===============
 
-class Eq a {
-  eq :: a -> a -> Bool
-}
+data Eq := \a. { eq: a -> a -> Bool }
 
 ---
 
 (source_file
-  (class_declaration
+  (data_declaration
     name: (constructor)
-    (identifier)
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (function_type
+    body: (data_brace_body
+      (identifier)
+      (method_signature
+        name: (identifier)
+        type: (function_type
           (identifier)
-          (constructor))))))
-
-===============
-Class with multiple methods
-===============
-
-class Eq a {
-  eq :: a -> a -> Bool;
-  neq :: a -> a -> Bool
-}
-
----
-
-(source_file
-  (class_declaration
-    name: (constructor)
-    (identifier)
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (function_type
-          (identifier)
-          (constructor))))
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (function_type
-          (identifier)
-          (constructor))))))
-
-===============
-Class with superclass constraint
-===============
-
-class Eq a => Ord a {
-  compare :: a -> a -> Ordering
-}
-
----
-
-(source_file
-  (class_declaration
-    (constraint
-      (constructor)
-      (identifier))
-    name: (constructor)
-    (identifier)
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (function_type
-          (identifier)
-          (constructor))))))
-
-===============
-Class with multiple superclass constraints
-===============
-
-class Eq a => Ord a => Show a {
-  render :: a -> String
-}
-
----
-
-(source_file
-  (class_declaration
-    (constraint
-      (constructor)
-      (identifier))
-    (constraint
-      (constructor)
-      (identifier))
-    name: (constructor)
-    (identifier)
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (constructor)))))
-
-===============
-Class with kinded parameter
-===============
-
-class Functor (f : Type -> Type) {
-  fmap :: \a b. (a -> b) -> f a -> f b
-}
-
----
-
-(source_file
-  (class_declaration
-    name: (constructor)
-    (kinded_variable
-      name: (identifier)
-      kind: (kind_arrow
-        (constructor)
-        (constructor)))
-    (method_signature
-      name: (identifier)
-      type: (forall_type
-        (identifier)
-        (identifier)
-        (function_type
-          (parenthesized_type
-            (function_type
-              (identifier)
-              (identifier)))
           (function_type
-            (type_application
-              constructor: (identifier)
-              argument: (identifier))
-            (type_application
-              constructor: (identifier)
-              argument: (identifier))))))))
+            (identifier)
+            (constructor)))))))
 
 ===============
-Instance declaration simple
+Type class with multiple methods
 ===============
 
-instance Eq Bool {
+data Eq := \a. {
+  eq: a -> a -> Bool;
+  neq: a -> a -> Bool
+}
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (identifier)
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (function_type
+            (identifier)
+            (constructor))))
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (function_type
+            (identifier)
+            (constructor)))))))
+
+===============
+Type class with superclass constraint
+===============
+
+data Ord := \a. Eq a => { compare: a -> a -> Ordering }
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (identifier)
+      (constraint
+        (constructor)
+        (identifier))
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (function_type
+            (identifier)
+            (constructor)))))))
+
+===============
+Type class with multiple superclass constraints
+===============
+
+data Show' := \a. Eq a => Ord a => { render: a -> String }
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (identifier)
+      (constraint
+        (constructor)
+        (identifier))
+      (constraint
+        (constructor)
+        (identifier))
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (constructor))))))
+
+===============
+Type class with kinded parameter
+===============
+
+data Functor := \(f : Type -> Type). { fmap: \a b. (a -> b) -> f a -> f b }
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (kinded_variable
+        name: (identifier)
+        kind: (kind_arrow
+          (constructor)
+          (constructor)))
+      (method_signature
+        name: (identifier)
+        type: (forall_type
+          (identifier)
+          (identifier)
+          (function_type
+            (parenthesized_type
+              (function_type
+                (identifier)
+                (identifier)))
+            (function_type
+              (type_application
+                constructor: (identifier)
+                argument: (identifier))
+              (type_application
+                constructor: (identifier)
+                argument: (identifier)))))))))
+
+===============
+Impl declaration simple
+===============
+
+impl Eq Bool := {
   eq := \x y. True
 }
 
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     class: (constructor)
     (constructor)
-    (instance_body
+    body: (impl_body
       (method_definition
         name: (identifier)
         value: (lambda_expression
@@ -160,10 +157,10 @@ instance Eq Bool {
           body: (constructor))))))
 
 ===============
-Instance with multiple methods
+Impl with multiple methods
 ===============
 
-instance Eq Bool {
+impl Eq Bool := {
   eq := \x y. True;
   neq := \x y. False
 }
@@ -171,10 +168,10 @@ instance Eq Bool {
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     class: (constructor)
     (constructor)
-    (instance_body
+    body: (impl_body
       (method_definition
         name: (identifier)
         value: (lambda_expression
@@ -189,17 +186,17 @@ instance Eq Bool {
           body: (constructor))))))
 
 ===============
-Instance with constraint
+Impl with constraint
 ===============
 
-instance Eq a => Eq (Maybe a) {
+impl Eq a => Eq (Maybe a) := {
   eq := \x y. True
 }
 
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     (constraint
       (constructor)
       (identifier))
@@ -208,7 +205,7 @@ instance Eq a => Eq (Maybe a) {
       (type_application
         constructor: (constructor)
         argument: (identifier)))
-    (instance_body
+    body: (impl_body
       (method_definition
         name: (identifier)
         value: (lambda_expression
@@ -217,195 +214,143 @@ instance Eq a => Eq (Maybe a) {
           body: (constructor))))))
 
 ===============
-Instance without body
+Type class with functional dependency
 ===============
 
-instance Eq Bool
-
----
-
-(source_file
-  (instance_declaration
-    class: (constructor)
-    (constructor)))
-
-===============
-Class with functional dependency
-===============
-
-class Convert a b | a =: b {
-  convert :: a -> b
+data Convert := \a b. {
+  convert: a -> b
 }
 
 ---
 
 (source_file
-  (class_declaration
+  (data_declaration
     name: (constructor)
-    (identifier)
-    (identifier)
-    (functional_dependency
-      (fundep_list
-        (fundep
-          from: (identifier)
-          to: (identifier))))
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (identifier)))))
-
-===============
-Class with multiple fundeps
-===============
-
-class Iso a b | a =: b, b =: a {
-  to :: a -> b
-}
-
----
-
-(source_file
-  (class_declaration
-    name: (constructor)
-    (identifier)
-    (identifier)
-    (functional_dependency
-      (fundep_list
-        (fundep
-          from: (identifier)
-          to: (identifier))
-        (fundep
-          from: (identifier)
-          to: (identifier))))
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (identifier)
-        (identifier)))))
-
-===============
-Class with associated type
-===============
-
-class Container c {
-  type Elem c :: Type;
-  cfold :: \b. (Elem c -> b -> b) -> b -> c -> b
-}
-
----
-
-(source_file
-  (class_declaration
-    name: (constructor)
-    (identifier)
-    (assoc_type_signature
-      name: (constructor)
+    body: (data_brace_body
       (identifier)
-      (constructor))
-    (method_signature
-      name: (identifier)
-      type: (forall_type
-        (identifier)
-        (function_type
-          (parenthesized_type
-            (function_type
-              (type_application
-                constructor: (constructor)
-                argument: (identifier))
-              (function_type
-                (identifier)
-                (identifier))))
-          (function_type
-            (identifier)
-            (function_type
-              (identifier)
-              (identifier))))))))
-
-===============
-Class with associated data family
-===============
-
-class Collection c {
-  data Key c :: Type;
-  insert :: Key c -> c -> c
-}
-
----
-
-(source_file
-  (class_declaration
-    name: (constructor)
-    (identifier)
-    (assoc_data_signature
-      name: (constructor)
       (identifier)
-      (constructor))
-    (method_signature
-      name: (identifier)
-      type: (function_type
-        (type_application
-          constructor: (constructor)
-          argument: (identifier))
-        (function_type
+      (method_signature
+        name: (identifier)
+        type: (function_type
           (identifier)
           (identifier))))))
 
 ===============
-Instance with associated type definition
+Type class with associated type
 ===============
 
-instance Container (List a) {
-  type Elem (List a) =: a;
+data Container := \c. {
+  type Elem c :: Type;
+  cfold: \b. (Elem c -> b -> b) -> b -> c -> b
+}
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (identifier)
+      (assoc_type_signature
+        name: (constructor)
+        (identifier)
+        (constructor))
+      (method_signature
+        name: (identifier)
+        type: (forall_type
+          (identifier)
+          (function_type
+            (parenthesized_type
+              (function_type
+                (type_application
+                  constructor: (constructor)
+                  argument: (identifier))
+                (function_type
+                  (identifier)
+                  (identifier))))
+            (function_type
+              (identifier)
+              (function_type
+                (identifier)
+                (identifier)))))))))
+
+===============
+Type class with associated data family
+===============
+
+data Collection := \c. {
+  data Key c :: Type;
+  insert: Key c -> c -> c
+}
+
+---
+
+(source_file
+  (data_declaration
+    name: (constructor)
+    body: (data_brace_body
+      (identifier)
+      (assoc_data_signature
+        name: (constructor)
+        (identifier)
+        (constructor))
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (type_application
+            constructor: (constructor)
+            argument: (identifier))
+          (function_type
+            (identifier)
+            (identifier)))))))
+
+===============
+Impl with associated type definition
+===============
+
+impl Container (List a) := {
+  type Elem := a;
   cfold := foldr
 }
 
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     class: (constructor)
     (parenthesized_type
       (type_application
         constructor: (constructor)
         argument: (identifier)))
-    (instance_body
+    body: (impl_body
       (assoc_type_definition
         name: (constructor)
-        (parenthesized_type
-          (type_application
-            constructor: (constructor)
-            argument: (identifier)))
         rhs: (identifier))
       (method_definition
         name: (identifier)
         value: (identifier)))))
 
 ===============
-Instance with associated data definition
+Impl with associated data definition
 ===============
 
-instance Collection (List a) {
-  data Key (List a) =: ListIndex Int;
+impl Collection (List a) := {
+  data Key := ListIndex Int;
   insert := listInsert
 }
 
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     class: (constructor)
     (parenthesized_type
       (type_application
         constructor: (constructor)
         argument: (identifier)))
-    (instance_body
+    body: (impl_body
       (assoc_data_definition
         name: (constructor)
-        (parenthesized_type
-          (type_application
-            constructor: (constructor)
-            argument: (identifier)))
         (adt_constructors
           (adt_constructor
             name: (constructor)
@@ -415,66 +360,67 @@ instance Collection (List a) {
         value: (identifier)))))
 
 ===============
-Class with tuple constraint
+Type class with tuple constraint
 ===============
 
-class (Functor f, Foldable f) => Traversable f {
-  traverse :: \a b g. Applicative g => (a -> g b) -> f a -> g (f b)
+data Traversable := \f. (Functor f, Foldable f) => {
+  traverse: \a b g. Applicative g => (a -> g b) -> f a -> g (f b)
 }
 
 ---
 
 (source_file
-  (class_declaration
-    (constraint
-      (constructor)
-      (identifier)
-      (constructor)
-      (identifier))
+  (data_declaration
     name: (constructor)
-    (identifier)
-    (method_signature
-      name: (identifier)
-      type: (forall_type
+    body: (data_brace_body
+      (identifier)
+      (constraint
+        (constructor)
         (identifier)
-        (identifier)
-        (identifier)
-        (qualified_type
-          (type_application
-            constructor: (constructor)
-            argument: (identifier))
-          (function_type
-            (parenthesized_type
-              (function_type
-                (identifier)
-                (type_application
-                  constructor: (identifier)
-                  argument: (identifier))))
+        (constructor)
+        (identifier))
+      (method_signature
+        name: (identifier)
+        type: (forall_type
+          (identifier)
+          (identifier)
+          (identifier)
+          (qualified_type
+            (type_application
+              constructor: (constructor)
+              argument: (identifier))
             (function_type
-              (type_application
-                constructor: (identifier)
-                argument: (identifier))
-              (type_application
-                constructor: (identifier)
-                argument: (parenthesized_type
+              (parenthesized_type
+                (function_type
+                  (identifier)
                   (type_application
                     constructor: (identifier)
-                    argument: (identifier)))))))))))
+                    argument: (identifier))))
+              (function_type
+                (type_application
+                  constructor: (identifier)
+                  argument: (identifier))
+                (type_application
+                  constructor: (identifier)
+                  argument: (parenthesized_type
+                    (type_application
+                      constructor: (identifier)
+                      argument: (identifier))))))))))))
 
 ===============
-Instance with tuple constraint
+Impl with tuple constraint
 ===============
 
-instance (Eq a, Eq b) => Eq (a, b) {
+impl (Eq a, Eq b) => Eq (a, b) := {
   eq := \x y. case x {
-    (a1, b1) -> case y { (a2, b2) -> eq a1 a2 }
+    (a1, b1) => case y { (a2, b2) => eq a1 a2 }
   }
 }
 
 ---
 
 (source_file
-  (instance_declaration
+  (impl_declaration
     (constraint
       (constructor)
       (identifier)
@@ -484,7 +430,7 @@ instance (Eq a, Eq b) => Eq (a, b) {
     (tuple_type
       (identifier)
       (identifier))
-    (instance_body
+    body: (impl_body
       (method_definition
         name: (identifier)
         value: (lambda_expression
@@ -507,3 +453,27 @@ instance (Eq a, Eq b) => Eq (a, b) {
                       (identifier)
                       (identifier))
                     (identifier)))))))))))
+
+===============
+Impl with named instance
+===============
+
+impl _myEq :: Eq Int := {
+  eq := \x y. True
+}
+
+---
+
+(source_file
+  (impl_declaration
+    (impl_name
+      name: (identifier))
+    class: (constructor)
+    (constructor)
+    body: (impl_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          pattern: (identifier)
+          body: (constructor))))))

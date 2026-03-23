@@ -280,7 +280,7 @@ f := do { (Just x) <- g; pure x }
 List pattern empty
 ===============
 
-f := case xs { [] -> 0 }
+f := case xs { [] => 0 }
 
 ---
 
@@ -297,7 +297,7 @@ f := case xs { [] -> 0 }
 List pattern with elements
 ===============
 
-f := case xs { [a, b, c] -> a }
+f := case xs { [a, b, c] => a }
 
 ---
 
@@ -317,7 +317,7 @@ f := case xs { [a, b, c] -> a }
 Qualified constructor pattern bare
 ===============
 
-f := case x { M.Nothing -> 0 }
+f := case x { M.Nothing => 0 }
 
 ---
 
@@ -336,7 +336,7 @@ f := case x { M.Nothing -> 0 }
 Qualified constructor pattern with arguments
 ===============
 
-f := case x { (M.Just y) -> y }
+f := case x { (M.Just y) => y }
 
 ---
 
@@ -358,7 +358,7 @@ f := case x { (M.Just y) -> y }
 Double literal pattern
 ===============
 
-f := case x { 3.14 -> True }
+f := case x { 3.14 => True }
 
 ---
 
