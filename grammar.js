@@ -5,7 +5,7 @@
  * Tree-sitter grammar for GICEL (Go's Indexed Capability Effect Language).
  *
  * Unified syntax (post-migration):
- *   - `data` covers ADTs, GADTs, and type classes.
+ *   - `form` covers ADTs, GADTs, and type classes.
  *   - `type` covers type aliases and type families.
  *   - `impl` replaces `instance` for type class instances.
  *   - Case alternatives use `=>` (not `->`, which is function arrow).
@@ -65,7 +65,7 @@ module.exports = grammar({
     [$._constraint_arg, $._type_arg],
     // ADT constructor fields: repeat can continue or next | / end.
     [$.adt_constructor],
-    // ADT constructor vs constraint head in data_brace_body:
+    // ADT constructor vs constraint head in form_brace_body:
     // `data Name := Con (` could be ADT constructor field or constraint arg.
     [$.adt_constructor, $._constraint_head],
     // Expression atom vs pattern in do-bind / lambda / case.
@@ -100,7 +100,7 @@ module.exports = grammar({
     _declaration: ($) =>
       choice(
         $.import_declaration,
-        $.data_declaration,
+        $.form_declaration,
         $.type_declaration,
         $.fixity_declaration,
         $.impl_declaration,
@@ -155,9 +155,9 @@ module.exports = grammar({
     // content (gadt_constructor uses uppercase : type, method_signature
     // uses lowercase : type). Both share the brace-delimited body form.
 
-    data_declaration: ($) =>
+    form_declaration: ($) =>
       seq(
-        "data",
+        "form",
         field("name", $.constructor),
         repeat($._type_binder),
         ":=",
@@ -167,7 +167,7 @@ module.exports = grammar({
     _data_body: ($) =>
       choice(
         $.adt_constructors,
-        $.data_brace_body,
+        $.form_brace_body,
       ),
 
     adt_constructors: ($) => sep1($.adt_constructor, "|"),
@@ -181,7 +181,7 @@ module.exports = grammar({
     //   data Expr := \a. { LitInt: Int -> Expr Int; ... }
     //   data Eq := \a. { eq: a -> a -> Bool }
     //   data Ord := \a. Eq a => { compare: a -> a -> Ordering }
-    data_brace_body: ($) =>
+    form_brace_body: ($) =>
       seq(
         optional(seq("\\", repeat1($._type_binder), ".")),
         repeat($.constraint),
@@ -275,7 +275,7 @@ module.exports = grammar({
       choice(
         $.method_definition,
         $.assoc_type_definition,
-        $.assoc_data_definition,
+        $.assoc_form_definition,
       ),
 
     // type Name := TypeExpr (in impl body)
@@ -283,8 +283,8 @@ module.exports = grammar({
       seq("type", field("name", $.constructor), ":=", field("rhs", $._type)),
 
     // data Name := Con fields | Con fields (in impl body)
-    assoc_data_definition: ($) =>
-      seq("data", field("name", $.constructor), ":=", $.adt_constructors),
+    assoc_form_definition: ($) =>
+      seq("form", field("name", $.constructor), ":=", $.adt_constructors),
 
     // Associated type signature in class body: type Name params :: Kind
     assoc_type_signature: ($) =>
@@ -292,7 +292,7 @@ module.exports = grammar({
 
     // Associated data signature in class body: data Name params :: Kind
     assoc_data_signature: ($) =>
-      seq("data", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
+      seq("form", field("name", $.constructor), repeat($._type_binder), "::", $._kind),
 
     // Constraint: ClassName arg1 arg2 ... =>
     constraint: ($) =>

@@ -6,7 +6,7 @@ Effect Language) — a Haskell-like embedded typed effect language for Go.
 
 ## Features
 
-- Full declaration parsing: `data`, `type`, `class`, `instance`, `import`,
+- Full declaration parsing: `form`, `type`, `class`, `instance`, `import`,
   fixity, type annotations, value definitions
 - Haskell-style type system: `forall`, qualified types (`=>`), type
   application, function types, row types, kinded variables

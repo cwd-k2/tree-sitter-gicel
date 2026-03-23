@@ -2,14 +2,14 @@
 Type class declaration simple
 ===============
 
-data Eq := \a. { eq: a -> a -> Bool }
+form Eq := \a. { eq: a -> a -> Bool }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (method_signature
         name: (identifier)
@@ -23,7 +23,7 @@ data Eq := \a. { eq: a -> a -> Bool }
 Type class with multiple methods
 ===============
 
-data Eq := \a. {
+form Eq := \a. {
   eq: a -> a -> Bool;
   neq: a -> a -> Bool
 }
@@ -31,9 +31,9 @@ data Eq := \a. {
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (method_signature
         name: (identifier)
@@ -54,14 +54,14 @@ data Eq := \a. {
 Type class with superclass constraint
 ===============
 
-data Ord := \a. Eq a => { compare: a -> a -> Ordering }
+form Ord := \a. Eq a => { compare: a -> a -> Ordering }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (constraint
         (constructor)
@@ -78,14 +78,14 @@ data Ord := \a. Eq a => { compare: a -> a -> Ordering }
 Type class with multiple superclass constraints
 ===============
 
-data Show' := \a. Eq a => Ord a => { render: a -> String }
+form Show' := \a. Eq a => Ord a => { render: a -> String }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (constraint
         (constructor)
@@ -103,14 +103,14 @@ data Show' := \a. Eq a => Ord a => { render: a -> String }
 Type class with kinded parameter
 ===============
 
-data Functor := \(f : Type -> Type). { fmap: \a b. (a -> b) -> f a -> f b }
+form Functor := \(f : Type -> Type). { fmap: \a b. (a -> b) -> f a -> f b }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (kinded_variable
         name: (identifier)
         kind: (kind_arrow
@@ -217,16 +217,16 @@ impl Eq a => Eq (Maybe a) := {
 Type class with functional dependency
 ===============
 
-data Convert := \a b. {
+form Convert := \a b. {
   convert: a -> b
 }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (identifier)
       (method_signature
@@ -239,7 +239,7 @@ data Convert := \a b. {
 Type class with associated type
 ===============
 
-data Container := \c. {
+form Container := \c. {
   type Elem c :: Type;
   cfold: \b. (Elem c -> b -> b) -> b -> c -> b
 }
@@ -247,9 +247,9 @@ data Container := \c. {
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (assoc_type_signature
         name: (constructor)
@@ -275,20 +275,20 @@ data Container := \c. {
                 (identifier)))))))))
 
 ===============
-Type class with associated data family
+Type class with associated form family
 ===============
 
-data Collection := \c. {
-  data Key c :: Type;
+form Collection := \c. {
+  form Key c :: Type;
   insert: Key c -> c -> c
 }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (assoc_data_signature
         name: (constructor)
@@ -331,11 +331,11 @@ impl Container (List a) := {
         value: (identifier)))))
 
 ===============
-Impl with associated data definition
+Impl with associated form definition
 ===============
 
 impl Collection (List a) := {
-  data Key := ListIndex Int;
+  form Key := ListIndex Int;
   insert := listInsert
 }
 
@@ -349,7 +349,7 @@ impl Collection (List a) := {
         constructor: (constructor)
         argument: (identifier)))
     body: (impl_body
-      (assoc_data_definition
+      (assoc_form_definition
         name: (constructor)
         (adt_constructors
           (adt_constructor
@@ -363,16 +363,16 @@ impl Collection (List a) := {
 Type class with tuple constraint
 ===============
 
-data Traversable := \f. (Functor f, Foldable f) => {
+form Traversable := \f. (Functor f, Foldable f) => {
   traverse: \a b g. Applicative g => (a -> g b) -> f a -> g (f b)
 }
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (constraint
         (constructor)

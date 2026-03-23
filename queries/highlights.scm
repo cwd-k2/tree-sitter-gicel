@@ -3,7 +3,7 @@
 ; ── Keywords ────────────────────────────────────────────────────────
 [
   "case"
-  "data"
+  "form"
   "do"
   "type"
   "impl"
@@ -19,7 +19,7 @@
     "pure" "bind" "thunk" "force" "assumption" "rec" "fix"))
 
 ; ── Declarations ───────────────────────────────────────────────────
-(data_declaration name: (constructor) @type.definition)
+(form_declaration name: (constructor) @type.definition)
 (type_alias name: (constructor) @type.definition)
 (type_family name: (constructor) @type.definition)
 (impl_declaration class: (constructor) @type)
@@ -45,7 +45,7 @@
 (assoc_type_signature name: (constructor) @type.definition)
 (assoc_data_signature name: (constructor) @type.definition)
 (assoc_type_definition name: (constructor) @type)
-(assoc_data_definition name: (constructor) @type.definition)
+(assoc_form_definition name: (constructor) @type.definition)
 
 ; ── Impl name (private instance) ─────────────────────────────────
 (impl_name name: (identifier) @function)

@@ -4,11 +4,11 @@
     "named": true,
     "subtypes": [
       {
-        "type": "data_declaration",
+        "type": "fixity_declaration",
         "named": true
       },
       {
-        "type": "fixity_declaration",
+        "type": "form_declaration",
         "named": true
       },
       {
@@ -440,32 +440,6 @@
     }
   },
   {
-    "type": "assoc_data_definition",
-    "named": true,
-    "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "constructor",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "adt_constructors",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "assoc_data_signature",
     "named": true,
     "fields": {
@@ -498,6 +472,32 @@
         },
         {
           "type": "kinded_variable",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "assoc_form_definition",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "constructor",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "adt_constructors",
           "named": true
         }
       ]
@@ -866,89 +866,6 @@
     }
   },
   {
-    "type": "data_brace_body",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "assoc_data_signature",
-          "named": true
-        },
-        {
-          "type": "assoc_type_signature",
-          "named": true
-        },
-        {
-          "type": "constraint",
-          "named": true
-        },
-        {
-          "type": "gadt_constructor",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "kinded_variable",
-          "named": true
-        },
-        {
-          "type": "method_signature",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "data_declaration",
-    "named": true,
-    "fields": {
-      "body": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "adt_constructors",
-            "named": true
-          },
-          {
-            "type": "data_brace_body",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "constructor",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "kinded_variable",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "do_expression",
     "named": true,
     "fields": {},
@@ -1106,6 +1023,89 @@
     }
   },
   {
+    "type": "form_brace_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "assoc_data_signature",
+          "named": true
+        },
+        {
+          "type": "assoc_type_signature",
+          "named": true
+        },
+        {
+          "type": "constraint",
+          "named": true
+        },
+        {
+          "type": "gadt_constructor",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "kinded_variable",
+          "named": true
+        },
+        {
+          "type": "method_signature",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "form_declaration",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "adt_constructors",
+            "named": true
+          },
+          {
+            "type": "form_brace_body",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "constructor",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "kinded_variable",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "function_type",
     "named": true,
     "fields": {},
@@ -1155,7 +1155,7 @@
       "required": false,
       "types": [
         {
-          "type": "assoc_data_definition",
+          "type": "assoc_form_definition",
           "named": true
         },
         {
@@ -2879,10 +2879,6 @@
     "named": true
   },
   {
-    "type": "data",
-    "named": false
-  },
-  {
     "type": "do",
     "named": false
   },
@@ -2893,6 +2889,10 @@
   {
     "type": "escape_sequence",
     "named": true
+  },
+  {
+    "type": "form",
+    "named": false
   },
   {
     "type": "identifier",

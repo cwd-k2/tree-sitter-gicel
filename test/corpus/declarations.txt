@@ -179,12 +179,12 @@ import Prelude (map, Maybe(..), (+))
 Simple ADT enumeration
 ===============
 
-data Bool := True | False
+form Bool := True | False
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
     body: (adt_constructors
       (adt_constructor
@@ -196,12 +196,12 @@ data Bool := True | False
 ADT with type parameter
 ===============
 
-data Maybe a := Just a | Nothing
+form Maybe a := Just a | Nothing
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
     (identifier)
     body: (adt_constructors
@@ -215,12 +215,12 @@ data Maybe a := Just a | Nothing
 ADT with multiple parameters
 ===============
 
-data Result e a := Ok a | Err e
+form Result e a := Ok a | Err e
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
     (identifier)
     (identifier)
@@ -236,12 +236,12 @@ data Result e a := Ok a | Err e
 ADT with recursive type
 ===============
 
-data List a := Cons a (List a) | Nil
+form List a := Cons a (List a) | Nil
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
     (identifier)
     body: (adt_constructors
@@ -259,12 +259,12 @@ data List a := Cons a (List a) | Nil
 ADT with kinded parameter
 ===============
 
-data Dict (c : Constraint) := MkDict
+form Dict (c : Constraint) := MkDict
 
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
     (kinded_variable
       name: (identifier)
@@ -277,7 +277,7 @@ data Dict (c : Constraint) := MkDict
 GADT declaration
 ===============
 
-data Expr := \a. {
+form Expr := \a. {
   LitInt: Int -> Expr Int;
   LitBool: Bool -> Expr Bool
 }
@@ -285,9 +285,9 @@ data Expr := \a. {
 ---
 
 (source_file
-  (data_declaration
+  (form_declaration
     name: (constructor)
-    body: (data_brace_body
+    body: (form_brace_body
       (identifier)
       (gadt_constructor
         name: (constructor)
