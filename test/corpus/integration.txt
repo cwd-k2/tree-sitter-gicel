@@ -1,0 +1,383 @@
+===============
+Real: type class with methods
+===============
+
+form Eq := \a. { eq: a -> a -> Bool }
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    body: (form_brace_body
+      (identifier)
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (function_type
+            (identifier)
+            (constructor)))))))
+
+===============
+Real: type class with superclass constraint
+===============
+
+form Ord := \a. Eq a => { compare: a -> a -> Ordering }
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    body: (form_brace_body
+      (identifier)
+      (constraint
+        (constructor)
+        (identifier))
+      (method_signature
+        name: (identifier)
+        type: (function_type
+          (identifier)
+          (function_type
+            (identifier)
+            (constructor)))))))
+
+===============
+Real: parameterized GADT
+===============
+
+form Maybe := \a. { Nothing: Maybe a; Just: a -> Maybe a }
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    body: (form_brace_body
+      (identifier)
+      (gadt_constructor
+        name: (constructor)
+        type: (type_application
+          constructor: (constructor)
+          argument: (identifier)))
+      (gadt_constructor
+        name: (constructor)
+        type: (function_type
+          (identifier)
+          (type_application
+            constructor: (constructor)
+            argument: (identifier)))))))
+
+===============
+Real: ADT enum shorthand
+===============
+
+form Bool := True | False
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    body: (adt_constructors
+      (adt_constructor
+        name: (constructor))
+      (adt_constructor
+        name: (constructor)))))
+
+===============
+Real: impl instance
+===============
+
+impl Eq Int := { eq := \x y. True }
+
+---
+
+(source_file
+  (impl_declaration
+    class: (constructor)
+    (constructor)
+    body: (impl_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          pattern: (identifier)
+          body: (constructor))))))
+
+===============
+Real: evidence injection
+===============
+
+main := _alt => eq 1 2
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (evidence_injection
+      (identifier)
+      (application
+        (application
+          (identifier)
+          (integer))
+        (integer)))))
+
+===============
+Real: case expression with =>
+===============
+
+main := case x { True => 1; False => 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (constructor)
+        body: (integer))
+      (case_branch
+        pattern: (constructor)
+        body: (integer)))))
+
+===============
+Real: type family with wildcard pattern
+===============
+
+type IsWeekend :: Bool := \(d: Season). case d {
+  Summer => True;
+  Winter => True;
+  _ => False
+}
+
+---
+
+(source_file
+  (type_declaration
+    (type_family
+      name: (constructor)
+      result: (constructor)
+      body: (forall_type
+        (kinded_variable
+          name: (identifier)
+          kind: (constructor))
+        (type_case
+          scrutinee: (identifier)
+          (type_case_branch
+            pattern: (constructor)
+            body: (constructor))
+          (type_case_branch
+            pattern: (constructor)
+            body: (constructor))
+          (type_case_branch
+            pattern: (wildcard)
+            body: (constructor)))))))
+
+===============
+Real: type family with tuple scrutinee and wildcard patterns
+===============
+
+type LUB :: Mult := \(m1: Mult) (m2: Mult). case (m1, m2) {
+  (Linear, _) => Linear;
+  (_, Linear) => Linear;
+  (Unrestricted, Unrestricted) => Unrestricted
+}
+
+---
+
+(source_file
+  (type_declaration
+    (type_family
+      name: (constructor)
+      result: (constructor)
+      body: (forall_type
+        (kinded_variable
+          name: (identifier)
+          kind: (constructor))
+        (kinded_variable
+          name: (identifier)
+          kind: (constructor))
+        (type_case
+          scrutinee: (tuple_type
+            (identifier)
+            (identifier))
+          (type_case_branch
+            pattern: (tuple_type
+              (constructor)
+              (wildcard))
+            body: (constructor))
+          (type_case_branch
+            pattern: (tuple_type
+              (wildcard)
+              (constructor))
+            body: (constructor))
+          (type_case_branch
+            pattern: (tuple_type
+              (constructor)
+              (constructor))
+            body: (constructor)))))))
+
+===============
+Real: row field with @Grade annotation
+===============
+
+send :: \s. Computation { ch: Send s @Linear } {} Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (identifier)
+      (type_application
+        constructor: (type_application
+          constructor: (type_application
+            constructor: (constructor)
+            argument: (row_type
+              (row_field
+                label: (identifier)
+                type: (type_application
+                  constructor: (constructor)
+                  argument: (identifier))
+                grade: (constructor))))
+          argument: (row_type))
+        argument: (constructor)))))
+
+===============
+Real: lambda multi-parameter
+===============
+
+main := \x y. x
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (lambda_expression
+      pattern: (identifier)
+      pattern: (identifier)
+      body: (identifier))))
+
+===============
+Real: lambda with kinded pattern
+===============
+
+advance :: \(s: Season). Tagged s -> Tagged (NextSeason s)
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (kinded_variable
+        name: (identifier)
+        kind: (constructor))
+      (function_type
+        (type_application
+          constructor: (constructor)
+          argument: (identifier))
+        (type_application
+          constructor: (constructor)
+          argument: (parenthesized_type
+            (type_application
+              constructor: (constructor)
+              argument: (identifier))))))))
+
+===============
+Real: GADT with phantom type parameter
+===============
+
+form Tagged := \(s: Season). { MkTagged: Tagged s }
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    body: (form_brace_body
+      (kinded_variable
+        name: (identifier)
+        kind: (constructor))
+      (gadt_constructor
+        name: (constructor)
+        type: (type_application
+          constructor: (constructor)
+          argument: (identifier))))))
+
+===============
+Real: import with selective items
+===============
+
+import Prelude (map, Maybe(..), (+))
+
+---
+
+(source_file
+  (import_declaration
+    (module_name
+      (constructor))
+    (import_list
+      (import_item
+        (identifier))
+      (import_item
+        (constructor)
+        (import_members))
+      (import_item
+        (parenthesized_operator
+          (operator))))))
+
+===============
+Real: multi-constraint impl
+===============
+
+impl Eq a => Eq (Maybe a) := { eq := \x y. True }
+
+---
+
+(source_file
+  (impl_declaration
+    (constraint
+      (constructor)
+      (identifier))
+    class: (constructor)
+    (parenthesized_type
+      (type_application
+        constructor: (constructor)
+        argument: (identifier)))
+    body: (impl_body
+      (method_definition
+        name: (identifier)
+        value: (lambda_expression
+          pattern: (identifier)
+          pattern: (identifier)
+          body: (constructor))))))
+
+===============
+Real: do expression with bind and let
+===============
+
+main := do { x <- action; y := 1; pure x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (do_expression
+      (bind_statement
+        pattern: (identifier)
+        value: (identifier))
+      (let_statement
+        name: (identifier)
+        value: (integer))
+      (application
+        (identifier)
+        (identifier)))))

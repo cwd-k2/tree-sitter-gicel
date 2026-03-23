@@ -373,6 +373,7 @@ module.exports = grammar({
         $.identifier,
         $.constructor,
         $.qualified_type_constructor,
+        $.wildcard,
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
@@ -447,12 +448,18 @@ module.exports = grammar({
         "}",
       ),
 
-    // Row field: label : Type
-    // Grade annotations parse as qualified_type within the type position:
+    // Row field: label : Type [@Grade]
+    // Grade annotations have two surface forms:
     //   `h: Linear => Handle`  ->  row_field(h, qualified_type(Linear, Handle))
-    // This matches the surface syntax where grade annotations use `=>`.
+    //   `ch: Send s @Linear`   ->  row_field(ch, Send s, grade: Linear)
+    // The `@Grade` form is the parser's actual syntax for multiplicity annotations.
     row_field: ($) =>
-      seq(field("label", $.identifier), ":", field("type", $._type)),
+      seq(
+        field("label", $.identifier),
+        ":",
+        field("type", $._type),
+        optional(seq("@", field("grade", $._type_arg))),
+      ),
 
     // ════════════════════════════════════════════════════════════════════
     //  Expressions

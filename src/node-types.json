@@ -260,6 +260,10 @@
       {
         "type": "unit_type",
         "named": true
+      },
+      {
+        "type": "wildcard",
+        "named": true
       }
     ]
   },
@@ -2152,6 +2156,44 @@
     "type": "row_field",
     "named": true,
     "fields": {
+      "grade": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "parenthesized_type",
+            "named": true
+          },
+          {
+            "type": "qualified_type_constructor",
+            "named": true
+          },
+          {
+            "type": "row_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          },
+          {
+            "type": "unit_type",
+            "named": true
+          },
+          {
+            "type": "wildcard",
+            "named": true
+          }
+        ]
+      },
       "label": {
         "multiple": false,
         "required": true,
