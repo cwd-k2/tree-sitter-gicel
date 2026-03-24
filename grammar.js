@@ -470,9 +470,17 @@ module.exports = grammar({
         $.lambda_expression,
         $.case_expression,
         $.do_expression,
+        $.if_expression,
         $.type_annotated_expression,
         $.evidence_injection,
         $._simple_expression,
+      ),
+
+    // If-then-else: right-associative (nested else-branches).
+    if_expression: ($) =>
+      prec.right(
+        0,
+        seq("if", field("condition", $._expression), "then", field("consequence", $._expression), "else", field("alternative", $._expression)),
       ),
 
     // Bare expression-level type annotation: `expr :: Type`
@@ -577,7 +585,13 @@ module.exports = grammar({
 
     let_statement: ($) =>
       seq(
-        field("name", $.identifier),
+        field("pattern", choice(
+          $.identifier,
+          $.tuple_pattern,
+          $.record_pattern,
+          $.parenthesized_pattern,
+          $.wildcard,
+        )),
         ":=",
         field("value", $._expression),
       ),

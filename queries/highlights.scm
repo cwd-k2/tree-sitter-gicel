@@ -11,6 +11,9 @@
   "infixl"
   "infixr"
   "infixn"
+  "if"
+  "then"
+  "else"
 ] @keyword
 
 ; ── Built-in identifiers ───────────────────────────────────────────

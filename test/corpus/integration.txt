@@ -376,7 +376,7 @@ main := do { x <- action; y := 1; pure x }
         pattern: (identifier)
         value: (identifier))
       (let_statement
-        name: (identifier)
+        pattern: (identifier)
         value: (integer))
       (application
         (identifier)
