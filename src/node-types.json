@@ -222,6 +222,10 @@
         "named": true
       },
       {
+        "type": "equality_constraint",
+        "named": true
+      },
+      {
         "type": "forall_type",
         "named": true
       },
@@ -894,6 +898,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "equality_constraint",
+    "named": true,
+    "fields": {
+      "lhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_type",
+            "named": true
+          }
+        ]
+      },
+      "rhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_type",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -3058,6 +3088,10 @@
   },
   {
     "type": "}",
+    "named": false
+  },
+  {
+    "type": "~",
     "named": false
   }
 ]

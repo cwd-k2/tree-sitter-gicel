@@ -366,6 +366,7 @@ module.exports = grammar({
       choice(
         $.forall_type,
         $.qualified_type,
+        $.equality_constraint,
         $.function_type,
         $.type_application,
         $.type_case,
@@ -381,6 +382,10 @@ module.exports = grammar({
       ),
 
     forall_type: ($) => seq("\\", repeat1($._type_binder), ".", $._type),
+
+    // Type equality constraint: a ~ Int. Binds tighter than => and ->.
+    equality_constraint: ($) =>
+      prec.left(3, seq(field("lhs", $._type), "~", field("rhs", $._type))),
 
     // Constraint is just _type before =>. Eq a parses as type_application(Eq, a).
     qualified_type: ($) => prec.right(1, seq($._type, "=>", $._type)),
@@ -806,8 +811,8 @@ module.exports = grammar({
         seq("-", /[!#$%&*+\-/<=?^~|]/),
         //   first IS <, second is NOT -
         seq("<", /[!#$%&*+/<=>?^~|]/),
-        // single operator character
-        op,
+        // single operator character, excluding ~ (reserved for equality constraint)
+        /[!#$%&*+\-/<=>?^|]/,
       ));
     },
     integer: (_) => /[0-9](_?[0-9])*/,

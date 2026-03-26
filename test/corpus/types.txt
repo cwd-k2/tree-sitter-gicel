@@ -330,3 +330,66 @@ f :: { x : Affine => Int, y : Bool }
       (row_field
         label: (identifier)
         type: (constructor)))))
+
+===============
+Equality constraint simple
+===============
+
+f :: a ~ Int => a -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (qualified_type
+      (equality_constraint
+        lhs: (identifier)
+        rhs: (constructor))
+      (function_type
+        (identifier)
+        (constructor)))))
+
+===============
+Equality constraint in tuple
+===============
+
+f :: (a ~ Int, Eq a) => a -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (qualified_type
+      (tuple_type
+        (equality_constraint
+          lhs: (identifier)
+          rhs: (constructor))
+        (type_application
+          constructor: (constructor)
+          argument: (identifier)))
+      (function_type
+        (identifier)
+        (constructor)))))
+
+===============
+Equality constraint with forall
+===============
+
+f :: \a. a ~ Int => a -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (identifier)
+      (qualified_type
+        (equality_constraint
+          lhs: (identifier)
+          rhs: (constructor))
+        (function_type
+          (identifier)
+          (constructor))))))
