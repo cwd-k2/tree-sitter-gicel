@@ -309,6 +309,7 @@ module.exports = grammar({
         $.identifier,
         $.constructor,
         $.qualified_type_constructor,
+        $.label_literal,
         $.unit_type,
         $.parenthesized_type,
         $.tuple_type,
@@ -374,6 +375,7 @@ module.exports = grammar({
         $.identifier,
         $.constructor,
         $.qualified_type_constructor,
+        $.label_literal,
         $.wildcard,
         $.unit_type,
         $.parenthesized_type,
@@ -428,6 +430,7 @@ module.exports = grammar({
         $.identifier,
         $.constructor,
         $.qualified_type_constructor,
+        $.label_literal,
         $.wildcard,
         $.unit_type,
         $.parenthesized_type,
@@ -790,6 +793,11 @@ module.exports = grammar({
     // ════════════════════════════════════════════════════════════════════
 
     identifier: (_) => /[a-z][a-zA-Z0-9_']*|_[a-zA-Z0-9_']+/,
+
+    // Label literal: #name (type-level label constant of kind Label).
+    // Must be a token() so tree-sitter matches it as a unit, winning over
+    // the operator regex when # is followed by a lowercase letter or _.
+    label_literal: (_) => token(seq("#", /[a-z_][a-zA-Z0-9_']*/)),
     constructor: (_) => /[A-Z][a-zA-Z0-9_']*/,
     // `:` and `.` are handled specially by the lexer (type annotations,
     // quantifier/lambda body separator, etc.) and must not appear in operator tokens.

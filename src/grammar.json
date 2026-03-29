@@ -1035,6 +1035,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "label_literal"
+        },
+        {
+          "type": "SYMBOL",
           "name": "unit_type"
         },
         {
@@ -1369,6 +1373,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "label_literal"
+        },
+        {
+          "type": "SYMBOL",
           "name": "wildcard"
         },
         {
@@ -1656,6 +1664,10 @@
         {
           "type": "SYMBOL",
           "name": "qualified_type_constructor"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "label_literal"
         },
         {
           "type": "SYMBOL",
@@ -3513,6 +3525,22 @@
     "identifier": {
       "type": "PATTERN",
       "value": "[a-z][a-zA-Z0-9_']*|_[a-zA-Z0-9_']+"
+    },
+    "label_literal": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "#"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[a-z_][a-zA-Z0-9_']*"
+          }
+        ]
+      }
     },
     "constructor": {
       "type": "PATTERN",

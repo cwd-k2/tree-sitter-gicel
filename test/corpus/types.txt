@@ -393,3 +393,49 @@ f :: \a. a ~ Int => a -> Int
         (function_type
           (identifier)
           (constructor))))))
+
+===============
+Label literal in type application
+===============
+
+f :: State #myState Int -> Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (type_application
+        constructor: (type_application
+          constructor: (constructor)
+          argument: (label_literal))
+        argument: (constructor))
+      (constructor))))
+
+===============
+Label literal in forall with Label kind
+===============
+
+f :: \(l: Label) s r. Effect { l: s | r } s
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (kinded_variable
+        name: (identifier)
+        kind: (constructor))
+      (identifier)
+      (identifier)
+      (type_application
+        constructor: (type_application
+          constructor: (constructor)
+          argument: (row_type
+            (row_field
+              label: (identifier)
+              type: (identifier))
+            (identifier)))
+        argument: (identifier)))))

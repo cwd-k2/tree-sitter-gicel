@@ -1023,3 +1023,35 @@ f := _myEq => eq 1 2
           (identifier)
           (integer))
         (integer)))))
+
+===============
+Type application with label literal
+===============
+
+main := getAt @#counter
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (type_application_expression
+      (identifier)
+      (label_literal))))
+
+===============
+Type application with label literal and argument
+===============
+
+main := putAt @#name "hello"
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (application
+      (type_application_expression
+        (identifier)
+        (label_literal))
+      (string))))
