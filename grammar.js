@@ -157,7 +157,7 @@ module.exports = grammar({
 
     form_declaration: ($) =>
       seq(
-        "form",
+        choice("form", "lazy"),
         field("name", $.constructor),
         repeat($._type_binder),
         ":=",
@@ -393,11 +393,14 @@ module.exports = grammar({
     qualified_type: ($) => prec.right(1, seq($._type, "=>", $._type)),
 
     // Left-recursive type application: Maybe Int -> type_application(Maybe, Int)
+    // Optional @ marks a grade argument: Computation @Linear {} {} Int.
     type_application: ($) =>
       prec.left(10, seq(
         field("constructor", $._type),
+        optional("@"),
         field("argument", $._type),
       )),
+
 
     function_type: ($) => prec.right(2, seq($._type, "->", $._type)),
 
@@ -456,17 +459,16 @@ module.exports = grammar({
         "}",
       ),
 
-    // Row field: label : Type [@Grade]
-    // Grade annotations have two surface forms:
-    //   `h: Linear => Handle`  ->  row_field(h, qualified_type(Linear, Handle))
-    //   `ch: Send s @Linear`   ->  row_field(ch, Send s, grade: Linear)
-    // The `@Grade` form is the parser's actual syntax for multiplicity annotations.
+    // Row field: label : Type
+    // Grade annotations (@Grade) are parsed as type_application with @
+    // inside the type, so they are part of the `type` field.
+    //   `ch: Send s @Linear` → row_field(ch, type_application(Send s, @, Linear))
+    //   `h: Linear => Handle` → row_field(h, qualified_type(Linear, Handle))
     row_field: ($) =>
       seq(
         field("label", $.identifier),
         ":",
         field("type", $._type),
-        optional(seq("@", field("grade", $._type_arg))),
       ),
 
     // ════════════════════════════════════════════════════════════════════

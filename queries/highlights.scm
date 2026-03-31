@@ -4,6 +4,7 @@
 [
   "case"
   "form"
+  "lazy"
   "do"
   "type"
   "impl"

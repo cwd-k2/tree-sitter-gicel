@@ -243,9 +243,10 @@ send :: \s. Computation { ch: Send s @Linear } {} Int
               (row_field
                 label: (identifier)
                 type: (type_application
-                  constructor: (constructor)
-                  argument: (identifier))
-                grade: (constructor))))
+                  constructor: (type_application
+                    constructor: (constructor)
+                    argument: (identifier))
+                  argument: (constructor)))))
           argument: (row_type))
         argument: (constructor)))))
 

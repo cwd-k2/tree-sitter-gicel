@@ -193,6 +193,36 @@ form Bool := True | False
         name: (constructor)))))
 
 ===============
+Lazy co-data declaration
+===============
+
+lazy Stream a := { LCons: a -> Stream a -> Stream a; LNil: Stream a; }
+
+---
+
+(source_file
+  (form_declaration
+    name: (constructor)
+    (identifier)
+    body: (form_brace_body
+      (gadt_constructor
+        name: (constructor)
+        type: (function_type
+          (identifier)
+          (function_type
+            (type_application
+              constructor: (constructor)
+              argument: (identifier))
+            (type_application
+              constructor: (constructor)
+              argument: (identifier)))))
+      (gadt_constructor
+        name: (constructor)
+        type: (type_application
+          constructor: (constructor)
+          argument: (identifier))))))
+
+===============
 ADT with type parameter
 ===============
 
