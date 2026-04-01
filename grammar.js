@@ -350,9 +350,12 @@ module.exports = grammar({
     kinded_variable: ($) =>
       seq("(", field("name", $.identifier), ":", field("kind", $._kind), ")"),
 
-    _kind: ($) => choice($.kind_arrow, $._kind_atom),
+    _kind: ($) => choice($.kind_arrow, $.kind_application, $._kind_atom),
 
-    kind_arrow: ($) => prec.right(1, seq($._kind_atom, "->", $._kind)),
+    kind_arrow: ($) => prec.right(1, seq($._kind, "->", $._kind)),
+
+    // Kind application: Type l, Map k v (left-associative, binds tighter than ->).
+    kind_application: ($) => prec.left(10, seq($._kind, $._kind_atom)),
 
     _kind_atom: ($) => choice($.constructor, $.identifier, seq("(", $._kind, ")")),
 
@@ -369,6 +372,7 @@ module.exports = grammar({
         $.qualified_type,
         $.equality_constraint,
         $.function_type,
+        $.dashpipe_type,
         $.type_application,
         $.type_case,
         // Atoms directly in supertype:
@@ -403,6 +407,11 @@ module.exports = grammar({
 
 
     function_type: ($) => prec.right(2, seq($._type, "->", $._type)),
+
+    // Type-level application operator: F -| A = F A (desugars to type_application).
+    // Right-associative, binds tighter than -> but looser than juxtaposition.
+    // Map String -| List -| Maybe -| Int = Map String (List (Maybe Int))
+    dashpipe_type: ($) => prec.right(5, seq($._type, "-|", $._type)),
 
     // Type-level case expression (used in type families).
     // `case scrutinee { Pattern => Type; ... }`
@@ -803,22 +812,22 @@ module.exports = grammar({
     constructor: (_) => /[A-Z][a-zA-Z0-9_']*/,
     // `:` and `.` are handled specially by the lexer (type annotations,
     // quantifier/lambda body separator, etc.) and must not appear in operator tokens.
-    // `->` and `<-` are reserved and excluded from the operator regex
+    // `->`, `<-`, and `-|` are reserved and excluded from the operator regex
     // so they are always lexed as keyword tokens, never as operators.
     // The regex handles three cases:
-    //   - 3+ operator chars (cannot be just -> or <-)
-    //   - 2 operator chars that are NOT -> or <-
+    //   - 3+ operator chars (cannot be just ->, <-, or -|)
+    //   - 2 operator chars that are NOT ->, <-, or -|
     //   - 1 operator char
     operator: (_) => {
       const op = /[!#$%&*+\-/<=>?^~|]/;
       return token(choice(
         // 3 or more operator characters — always valid
         seq(op, op, op, repeat(op)),
-        // 2 operator characters, excluding -> and <-:
+        // 2 operator characters, excluding ->, <-, and -|:
         //   first is NOT - and NOT <: anything goes for second
         seq(/[!#$%&*+/=>?^~|]/, op),
-        //   first IS -, second is NOT >
-        seq("-", /[!#$%&*+\-/<=?^~|]/),
+        //   first IS -, second is NOT > and NOT |
+        seq("-", /[!#$%&*+\-/<=?^~]/),
         //   first IS <, second is NOT -
         seq("<", /[!#$%&*+/<=>?^~|]/),
         // single operator character, excluding ~ (reserved for equality constraint)

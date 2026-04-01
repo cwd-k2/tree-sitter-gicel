@@ -439,3 +439,97 @@ f :: \(l: Label) s r. Effect { l: s | r } s
               type: (identifier))
             (identifier)))
         argument: (identifier)))))
+
+===============
+Dashpipe simple
+===============
+
+f :: F -| A
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (dashpipe_type
+      (constructor)
+      (constructor))))
+
+===============
+Dashpipe right-associative chain
+===============
+
+f :: Map String -| List -| Maybe -| Int
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (dashpipe_type
+      (type_application
+        constructor: (constructor)
+        argument: (constructor))
+      (dashpipe_type
+        (constructor)
+        (dashpipe_type
+          (constructor)
+          (constructor))))))
+
+===============
+Dashpipe with function arrow
+===============
+
+f :: F -| A -> B
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (dashpipe_type
+        (constructor)
+        (constructor))
+      (constructor))))
+
+===============
+Function arrow to dashpipe
+===============
+
+f :: A -> F -| B
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (function_type
+      (constructor)
+      (dashpipe_type
+        (constructor)
+        (constructor)))))
+
+===============
+Kind application in kinded variable
+===============
+
+f :: \(l: Level) (a: Type l). a -> a
+
+---
+
+(source_file
+  (type_annotation
+    name: (identifier)
+    type: (forall_type
+      (kinded_variable
+        name: (identifier)
+        kind: (constructor))
+      (kinded_variable
+        name: (identifier)
+        kind: (kind_application
+          (constructor)
+          (identifier)))
+      (function_type
+        (identifier)
+        (identifier)))))

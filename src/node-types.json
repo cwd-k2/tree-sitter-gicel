@@ -222,6 +222,10 @@
         "named": true
       },
       {
+        "type": "dashpipe_type",
+        "named": true
+      },
+      {
         "type": "equality_constraint",
         "named": true
       },
@@ -487,6 +491,10 @@
           "named": true
         },
         {
+          "type": "kind_application",
+          "named": true
+        },
+        {
           "type": "kind_arrow",
           "named": true
         },
@@ -574,6 +582,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "kind_application",
           "named": true
         },
         {
@@ -884,6 +896,21 @@
         },
         {
           "type": "wildcard",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "dashpipe_type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_type",
           "named": true
         }
       ]
@@ -1478,6 +1505,33 @@
     }
   },
   {
+    "type": "kind_application",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "constructor",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "kind_application",
+          "named": true
+        },
+        {
+          "type": "kind_arrow",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "kind_arrow",
     "named": true,
     "fields": {},
@@ -1491,6 +1545,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "kind_application",
           "named": true
         },
         {
@@ -1522,6 +1580,10 @@
           },
           {
             "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "kind_application",
             "named": true
           },
           {
@@ -2840,6 +2902,10 @@
             "named": true
           },
           {
+            "type": "kind_application",
+            "named": true
+          },
+          {
             "type": "kind_arrow",
             "named": true
           }
@@ -2914,6 +2980,10 @@
   },
   {
     "type": "->",
+    "named": false
+  },
+  {
+    "type": "-|",
     "named": false
   },
   {
