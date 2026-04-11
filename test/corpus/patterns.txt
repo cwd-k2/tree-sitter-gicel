@@ -407,3 +407,63 @@ f := case tag { #ping => 1; #quit => 0 }
       (case_branch
         pattern: (label_literal)
         body: (integer)))))
+
+===============
+Label pattern with payload variable
+===============
+
+f := case v { #foo x => x }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (label_pattern
+          (label_literal)
+          (identifier))
+        body: (identifier)))))
+
+===============
+Label pattern with wildcard payload
+===============
+
+f := case v { #quit _ => 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (label_pattern
+          (label_literal)
+          (wildcard))
+        body: (integer)))))
+
+===============
+Label pattern mixed bare and payload
+===============
+
+f := case v { #foo x => x; #bar => 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (label_pattern
+          (label_literal)
+          (identifier))
+        body: (identifier))
+      (case_branch
+        pattern: (label_literal)
+        body: (integer)))))

@@ -3268,7 +3268,33 @@
         },
         {
           "type": "SYMBOL",
+          "name": "label_pattern"
+        },
+        {
+          "type": "SYMBOL",
           "name": "_simple_pattern"
+        }
+      ]
+    },
+    "label_pattern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "label_literal"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "wildcard"
+            }
+          ]
         }
       ]
     },

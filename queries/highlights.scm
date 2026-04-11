@@ -110,6 +110,7 @@
 (wildcard) @variable.parameter
 
 ; ── Label literals ────────────────────────────────────────────────
+(label_pattern (label_literal) @label)
 (label_literal) @label
 
 ; ── Constructors ───────────────────────────────────────────────────

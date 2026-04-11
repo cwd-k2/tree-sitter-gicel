@@ -180,6 +180,10 @@
         "named": true
       },
       {
+        "type": "label_pattern",
+        "named": true
+      },
+      {
         "type": "list_pattern",
         "named": true
       },
@@ -1610,6 +1614,29 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "label_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "label_literal",
+          "named": true
+        },
+        {
+          "type": "wildcard",
+          "named": true
+        }
+      ]
     }
   },
   {

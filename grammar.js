@@ -756,7 +756,11 @@ module.exports = grammar({
     //  Patterns
     // ════════════════════════════════════════════════════════════════════
 
-    _pattern: ($) => choice($.constructor_pattern, $._simple_pattern),
+    _pattern: ($) => choice($.constructor_pattern, $.label_pattern, $._simple_pattern),
+
+    // #tag x or #tag _ — label pattern with optional payload binding.
+    label_pattern: ($) =>
+      seq($.label_literal, choice($.identifier, $.wildcard)),
 
     constructor_pattern: ($) =>
       seq(choice($.constructor, $.qualified_constructor), repeat1($._simple_pattern)),
