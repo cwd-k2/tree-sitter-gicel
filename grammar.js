@@ -771,6 +771,7 @@ module.exports = grammar({
         $.double,
         $.string,
         $.rune,
+        $.label_literal,
         $.unit_pattern,
         $.parenthesized_pattern,
         $.tuple_pattern,

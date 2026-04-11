@@ -3334,6 +3334,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "label_literal"
+        },
+        {
+          "type": "SYMBOL",
           "name": "unit_pattern"
         },
         {

@@ -370,3 +370,40 @@ f := case x { 3.14 => True }
       (case_branch
         pattern: (double)
         body: (constructor)))))
+
+===============
+Label pattern single
+===============
+
+f := case v { #ping => 1 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (label_literal)
+        body: (integer)))))
+
+===============
+Label pattern multi-branch
+===============
+
+f := case tag { #ping => 1; #quit => 0 }
+
+---
+
+(source_file
+  (value_definition
+    name: (identifier)
+    value: (case_expression
+      scrutinee: (identifier)
+      (case_branch
+        pattern: (label_literal)
+        body: (integer))
+      (case_branch
+        pattern: (label_literal)
+        body: (integer)))))

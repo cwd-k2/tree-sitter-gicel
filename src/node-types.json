@@ -176,6 +176,10 @@
         "named": true
       },
       {
+        "type": "label_literal",
+        "named": true
+      },
+      {
         "type": "list_pattern",
         "named": true
       },
@@ -860,6 +864,10 @@
         },
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "label_literal",
           "named": true
         },
         {
@@ -1636,6 +1644,10 @@
           },
           {
             "type": "integer",
+            "named": true
+          },
+          {
+            "type": "label_literal",
             "named": true
           },
           {
