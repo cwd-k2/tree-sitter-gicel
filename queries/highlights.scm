@@ -1,4 +1,4 @@
-; GICEL highlight queries for tree-sitter (unified syntax)
+; GICEL highlight queries for tree-sitter
 
 ; ── Keywords ────────────────────────────────────────────────────────
 [
@@ -27,6 +27,7 @@
 (type_alias name: (constructor) @type.definition)
 (type_family name: (constructor) @type.definition)
 (impl_declaration class: (constructor) @type)
+(impl_name name: (identifier) @function)
 
 (type_annotation name: (identifier) @function)
 (type_annotation name: (parenthesized_operator (operator) @function))
@@ -45,17 +46,20 @@
 (fixity_declaration operator: (operator) @operator)
 (fixity_declaration operator: (identifier) @function)
 
-; ── Associated types ─────────────────────────────────────────────
+; ── Associated types/data (in data and impl bodies) ──────────────
 (assoc_type_signature name: (constructor) @type.definition)
 (assoc_data_signature name: (constructor) @type.definition)
 (assoc_type_definition name: (constructor) @type)
 (assoc_form_definition name: (constructor) @type.definition)
 
-; ── Impl name (private instance) ─────────────────────────────────
-(impl_name name: (identifier) @function)
-
 ; ── Imports ─────────────────────────────────────────────────────────
 (import_declaration (module_name (constructor) @module))
+(import_alias "as" @keyword)
+(import_alias alias: (constructor) @module)
+(import_item (identifier) @function)
+(import_item (constructor) @type)
+(import_members (constructor) @constructor)
+(import_members ".." @punctuation.special)
 
 ; ── Types ──────────────────────────────────────────────────────────
 (forall_type "\\" @keyword)
@@ -64,10 +68,18 @@
 (type_application constructor: (constructor) @type)
 (row_field label: (identifier) @property)
 
-; Constraint before =>: highlight the constructor as a type class
+; Constraint before =>: highlight the constructor as a class name
 (qualified_type (type_application constructor: (constructor) @type))
 (qualified_type (constructor) @type)
 (constraint (constructor) @type)
+
+; ── Qualified references ──────────────────────────────────────────
+(qualified_variable module: (constructor) @module)
+(qualified_variable name: (identifier) @variable)
+(qualified_constructor module: (constructor) @module)
+(qualified_constructor name: (constructor) @constructor)
+(qualified_type_constructor module: (constructor) @module)
+(qualified_type_constructor name: (constructor) @type)
 
 ; ── Expressions ────────────────────────────────────────────────────
 (lambda_expression "\\" @keyword.function)
@@ -115,9 +127,9 @@
 (block_comment) @comment
 
 ; ── Punctuation ────────────────────────────────────────────────────
-["->" "-|" "=>" "::" ":=" ":" "~"] @punctuation.special
+["->" "-|" "=>" "::" ":=" "~"] @punctuation.special
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
-["," ";" "|" "." "\\" "@"] @punctuation.delimiter
+["," ";" "|" "." ":" "\\"] @punctuation.delimiter
 
 ; ── Operators (general fallback) ───────────────────────────────────
 (operator) @operator
