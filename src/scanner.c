@@ -5,12 +5,22 @@
  *   1. Emit _newline at top-level declaration boundaries.
  *   2. Parse nestable block comments {- ... -}.
  *   3. Emit _case_brace when `{` appears in a case_expression context.
+ *   4. Emit _stmt_end at newlines within braced bodies (do, case, etc.)
+ *      for implicit statement separation.
  *
  * _newline is emitted when:
  *   - valid_symbols[TOKEN_NEWLINE] is true (only at source_file level)
  *   - the scanner encounters a newline
  *   - the next non-whitespace character could start a declaration
  *     (a-z, A-Z, _, or '(')
+ *
+ * _stmt_end is emitted when:
+ *   - valid_symbols[TOKEN_STMT_END] is true (inside braced bodies)
+ *   - the scanner encounters a newline
+ *   - the next non-whitespace character is at column > 0 (not a
+ *     declaration boundary) and is not `}`
+ *   This mirrors GICEL's parseBody() semantics where newlines at the
+ *   same brace depth act as implicit semicolons.
  *
  * _case_brace is emitted when:
  *   - valid_symbols[TOKEN_CASE_BRACE] is true (after case scrutinee)
@@ -19,7 +29,8 @@
  *   and block_expression `{`.
  *
  * Brace depth is NOT tracked: tree-sitter's parser state ensures
- * TOKEN_NEWLINE is only valid at the top level (source_file rule).
+ * TOKEN_NEWLINE is only valid at the top level (source_file rule),
+ * and TOKEN_STMT_END is only valid inside braced body constructs.
  */
 
 #include "tree_sitter/parser.h"
@@ -32,6 +43,7 @@ enum TokenType {
   TOKEN_BLOCK_COMMENT,
   TOKEN_CASE_BRACE,
   TOKEN_QUALIFIED_DOT,
+  TOKEN_STMT_END,
 };
 
 /* -- Lifecycle ------------------------------------------------------------ */
@@ -128,47 +140,81 @@ bool tree_sitter_gicel_external_scanner_scan(void *payload, TSLexer *lexer,
 
   skip_horizontal_ws(lexer);
 
-  /* -- Newline at top level ----------------------------------------------- */
-  if (lexer->lookahead == '\n' && valid_symbols[TOKEN_NEWLINE]) {
+  /* -- Newline handling: _newline and _stmt_end ----------------------------- */
+  /* Both tokens trigger on newlines but in different contexts:
+     - _newline: top-level declaration boundaries (column 0)
+     - _stmt_end: implicit semicolons inside braced bodies (column > 0)
+     When both are valid (GLR overlap), _newline takes priority. */
+  if (lexer->lookahead == '\n' &&
+      (valid_symbols[TOKEN_NEWLINE] || valid_symbols[TOKEN_STMT_END])) {
+
+    /* Guard against error-recovery mode where all symbols are valid.
+       In that state, emitting _stmt_end would interfere with recovery. */
+    bool error_recovery = valid_symbols[TOKEN_NEWLINE] &&
+                          valid_symbols[TOKEN_BLOCK_COMMENT] &&
+                          valid_symbols[TOKEN_CASE_BRACE] &&
+                          valid_symbols[TOKEN_QUALIFIED_DOT] &&
+                          valid_symbols[TOKEN_STMT_END];
+    if (error_recovery) goto after_newline;
+
     /* Consume leading newlines and whitespace. */
     while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
            lexer->lookahead == ' ' || lexer->lookahead == '\t') {
       lexer->advance(lexer, true);
     }
-    /* Peek past line comments to find the next declaration start.
-       mark_end is set HERE (before any comments) so the _newline token
+    /* mark_end is set HERE (before any comments) so the token
        does NOT include comment text.  Characters advanced past mark_end
        are re-available to the parser, which creates line_comment nodes
        via the extras mechanism -- preserving highlight queries. */
     lexer->mark_end(lexer);
-    while (lexer->lookahead == '-') {
-      lexer->advance(lexer, false);
-      if (lexer->lookahead != '-') break;
-      /* It's a line comment -- advance past it to peek at what follows. */
-      while (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+
+    /* Save position info at mark_end for _stmt_end decision. */
+    uint32_t mark_col = lexer->get_column(lexer);
+    int32_t mark_char = lexer->lookahead;
+
+    /* Peek past line comments to find the next declaration start. */
+    if (valid_symbols[TOKEN_NEWLINE]) {
+      while (lexer->lookahead == '-') {
         lexer->advance(lexer, false);
+        if (lexer->lookahead != '-') break;
+        /* It's a line comment -- advance past it to peek at what follows. */
+        while (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+          lexer->advance(lexer, false);
+        }
+        /* Advance past trailing whitespace after the comment. */
+        while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
+               lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+          lexer->advance(lexer, false);
+        }
+        /* Do NOT call mark_end here: comments stay outside the token. */
       }
-      /* Advance past trailing whitespace after the comment. */
-      while (lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
-             lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-        lexer->advance(lexer, false);
+
+      /* Only emit _newline when the next token is at column 0 (unindented).
+         Indented continuations (column > 0) are NOT declaration boundaries.
+         This mirrors the GICEL parser's atDeclBoundary() semantics. */
+      if (is_decl_start_char(lexer->lookahead) &&
+          lexer->get_column(lexer) == 0) {
+        lexer->result_symbol = TOKEN_NEWLINE;
+        return true;
       }
-      /* Do NOT call mark_end here: comments stay outside the token. */
     }
 
-    /* Only emit _newline when the next token is at column 0 (unindented).
-       Indented continuations (column > 0) are NOT declaration boundaries.
-       This mirrors the GICEL parser's atDeclBoundary() semantics. */
-    if (is_decl_start_char(lexer->lookahead) &&
-        lexer->get_column(lexer) == 0) {
-      lexer->result_symbol = TOKEN_NEWLINE;
+    /* _stmt_end: newline inside a braced body at column > 0.
+       Do not emit before `}` (closing delimiter is not a new statement)
+       or at EOF. This mirrors GICEL's parseBody() implicit-separator
+       logic: newlines at the same brace depth act as semicolons. */
+    if (valid_symbols[TOKEN_STMT_END] &&
+        mark_col > 0 && mark_char != '}' && !lexer->eof(lexer)) {
+      lexer->result_symbol = TOKEN_STMT_END;
       return true;
     }
-    /* Not a declaration boundary -- fall through to subsequent checks.
+
+    /* Not a declaration boundary and not a stmt_end -- fall through.
        After consuming whitespace, the lookahead might be '{' for {- ... -}
        or for a case brace.  Returning false here would let the regular
        lexer consume '{', missing the block comment or case brace. */
   }
+after_newline:
 
   /* -- Brace handling: case_brace and block comments ---------------------- */
   if (lexer->lookahead == '{') {

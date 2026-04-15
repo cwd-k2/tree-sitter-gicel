@@ -50,6 +50,7 @@ module.exports = grammar({
     $.block_comment,
     $._case_brace,
     $._qualified_dot,
+    $._stmt_end,
   ],
 
   extras: ($) => [/[ \t\r\n]/, $.line_comment, $.block_comment],
@@ -58,7 +59,7 @@ module.exports = grammar({
 
   supertypes: ($) => [$._declaration, $._expression, $._type, $._pattern],
 
-  inline: ($) => [$._no_brace_atom, $._scrutinee_app_or_atom],
+  inline: ($) => [$._no_brace_atom, $._scrutinee_app_or_atom, $._body_sep],
 
   conflicts: ($) => [
     // constraint arg overlaps with type_arg.
@@ -186,7 +187,7 @@ module.exports = grammar({
         optional(seq("\\", repeat1($._type_binder), ".")),
         repeat($.constraint),
         "{",
-        optional(seq(sep1($._data_member, ";"), optional(";"))),
+        optional(seq(sep1($._data_member, $._body_sep), optional($._body_sep))),
         "}",
       ),
 
@@ -267,7 +268,7 @@ module.exports = grammar({
     impl_body: ($) =>
       seq(
         "{",
-        optional(seq(sep1($._impl_member, ";"), optional(";"))),
+        optional(seq(sep1($._impl_member, $._body_sep), optional($._body_sep))),
         "}",
       ),
 
@@ -420,7 +421,7 @@ module.exports = grammar({
         "case",
         field("scrutinee", $._type),
         "{",
-        optional(seq(sep1($.type_case_branch, ";"), optional(";"))),
+        optional(seq(sep1($.type_case_branch, $._body_sep), optional($._body_sep))),
         "}",
       ),
 
@@ -530,7 +531,7 @@ module.exports = grammar({
         "case",
         field("scrutinee", $._scrutinee),
         $._case_brace,
-        optional(seq(sep1($.case_branch, ";"), optional(";"))),
+        optional(seq(sep1($.case_branch, $._body_sep), optional($._body_sep))),
         "}",
       ),
 
@@ -592,9 +593,12 @@ module.exports = grammar({
       seq(
         "do",
         "{",
-        optional(seq(sep1($._do_statement, ";"), optional(";"))),
+        optional(seq(sep1($._do_statement, $._body_sep), optional($._body_sep))),
         "}",
       ),
+
+    // Body separator: semicolon or newline (external scanner).
+    _body_sep: ($) => choice(";", $._stmt_end),
 
     _do_statement: ($) =>
       choice($.bind_statement, $.let_statement, $._expression),
@@ -741,7 +745,7 @@ module.exports = grammar({
     block_expression: ($) =>
       prec(-1, seq(
         "{",
-        repeat(seq($.let_statement, ";")),
+        repeat(seq($.let_statement, $._body_sep)),
         $._expression,
         "}",
       )),
